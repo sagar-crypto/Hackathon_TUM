@@ -1,8 +1,3 @@
-# welness_agent_live.py
-"""
-Enhanced Wellness Agent with live transcript processing and real-time agent coordination.
-"""
-
 import asyncio
 import pyaudio
 import os
@@ -77,6 +72,7 @@ CHUNK_SIZE = 512
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
 ECHO_DELAY = 0.3
+FINAL_AUDIO_WAIT = 2.0  # Give 2 seconds for final audio to play
 
 
 class AudioHandler:
@@ -124,6 +120,7 @@ class SessionState:
     def __init__(self):
         self.is_ai_speaking = False
         self.should_end_session = False
+        self.end_session_requested = False  # NEW: Track when end is requested
         self.last_user_text = ""
         self.last_agent_text = ""
         self.session_ended_callback = None
@@ -135,9 +132,9 @@ async def audio_input_loop(session, audio_handler, state):
     """Sends audio ONLY when the AI is NOT speaking."""
     print(f"--- 🎤 Listening ({INPUT_SAMPLE_RATE}Hz)... ---")
     try:
-        while True:
+        while not state.should_end_session:
             audio_data = await asyncio.to_thread(audio_handler.read_input)
-            if audio_data and not state.is_ai_speaking:
+            if audio_data and not state.is_ai_speaking and not state.end_session_requested:
                 await session.send_realtime_input(
                     audio=types.Blob(
                         data=audio_data,
@@ -155,126 +152,97 @@ async def audio_output_loop(session, audio_handler, state):
     """Handles audio output, transcription, and turn management with live agent coordination."""
     print(f"--- 🔊 Ready for Audio ({OUTPUT_SAMPLE_RATE}Hz) ---")
 
-    while True:
-        try:
-            async for response in session.receive():
-                server_content = response.server_content
-                if server_content:
-                    # Handle audio output and transcription
-                    if server_content.model_turn:
-                        state.is_ai_speaking = True
-                        current_text_parts = []
+    try:
+        while not state.should_end_session:
+            try:
+                async for response in session.receive():
+                    server_content = response.server_content
+                    if server_content:
+                        # Handle audio output and transcription
+                        if server_content.model_turn:
+                            state.is_ai_speaking = True
+                            current_text_parts = []
 
-                        for part in server_content.model_turn.parts:
-                            # Play audio
-                            if part.inline_data:
-                                await asyncio.to_thread(audio_handler.write_output, part.inline_data.data)
+                            for part in server_content.model_turn.parts:
+                                # Play audio
+                                if part.inline_data:
+                                    await asyncio.to_thread(audio_handler.write_output, part.inline_data.data)
 
-                            # Collect text for transcription
-                            if hasattr(part, 'text') and part.text:
-                                current_text_parts.append(part.text)
+                                # Collect text for transcription
+                                if hasattr(part, 'text') and part.text:
+                                    current_text_parts.append(part.text)
 
-                            # Check for function call to end session
-                            if hasattr(part, 'function_call') and part.function_call:
-                                func_call = part.function_call
-                                if hasattr(func_call, 'name') and func_call.name == 'end_session_tool':
-                                    print(f"\n\n👋 AI assistant decided to end the session")
-                                    print("Ending session gracefully...")
-                                    await asyncio.sleep(5.0)
-                                    state.should_end_session = True
-                                    await asyncio.sleep(5.0)
-                                    if state.session_ended_callback:
-                                        await state.session_ended_callback("ai_initiated")
+                                # Check for function call to end session
+                                if hasattr(part, 'function_call') and part.function_call:
+                                    func_call = part.function_call
+                                    if hasattr(func_call, 'name') and func_call.name == 'end_session_tool':
+                                        state.end_session_requested = True
+                                    elif hasattr(func_call, 'id') and 'end_session' in str(func_call):
+                                        state.end_session_requested = True
 
-                                    return
-                                elif hasattr(func_call, 'id') and 'end_session' in str(func_call):
-                                    print(f"\n\n👋 AI assistant decided to end the session")
-                                    print("Ending session gracefully...")
-                                    await asyncio.sleep(5.0)
-                                    state.should_end_session = True
-                                    await asyncio.sleep(5.0)
-                                    if state.session_ended_callback:
-                                        await state.session_ended_callback("ai_initiated")
-                                    return
+                            # Store agent's text and send to coordinator
+                            if current_text_parts:
+                                state.last_agent_text = " ".join(current_text_parts)
+                                if state.live_coordinator:
+                                    await state.live_coordinator.add_transcript("agent", state.last_agent_text)
+                                    print(f"\n🤖 Agent: {state.last_agent_text[:80]}...")
 
-                        # Store agent's text and send to coordinator
-                        if current_text_parts:
-                            state.last_agent_text = " ".join(current_text_parts)
-                            if state.live_coordinator:
-                                await state.live_coordinator.add_transcript("agent", state.last_agent_text)
-                                print(f"\n🤖 Agent: {state.last_agent_text[:80]}...")
+                        # Handle turn completion
+                        if server_content.turn_complete:
+                            await asyncio.sleep(ECHO_DELAY)
+                            state.is_ai_speaking = False
+                            print(".", end="", flush=True)
 
-                    # Handle turn completion
-                    if server_content.turn_complete:
-                        await asyncio.sleep(ECHO_DELAY)
-                        state.is_ai_speaking = False
-                        print(".", end="", flush=True)
+                            # If end session was requested, wait for final audio and then end
+                            if state.end_session_requested:
+                                print(f"\n\n👋 AI assistant is ending the session")
+                                print("Waiting for final audio to complete...")
+                                await asyncio.sleep(FINAL_AUDIO_WAIT)
+                                print("Session ending gracefully...")
+                                state.should_end_session = True
+                                if state.session_ended_callback:
+                                    await state.session_ended_callback("ai_initiated")
+                                return
 
-                # Check for tool calls at response level
-                if hasattr(response, 'tool_call') and response.tool_call:
-                    tool_call = response.tool_call
-                    tool_name = None
-                    if hasattr(tool_call, 'function_calls') and tool_call.function_calls:
-                        for fc in tool_call.function_calls:
-                            if hasattr(fc, 'name'):
-                                tool_name = fc.name
-                            elif hasattr(fc, 'id') and 'end_session' in str(fc):
-                                tool_name = 'end_session_tool'
+                    # Check for tool calls at response level
+                    if hasattr(response, 'tool_call') and response.tool_call:
+                        tool_call = response.tool_call
+                        tool_name = None
+                        if hasattr(tool_call, 'function_calls') and tool_call.function_calls:
+                            for fc in tool_call.function_calls:
+                                if hasattr(fc, 'name'):
+                                    tool_name = fc.name
+                                elif hasattr(fc, 'id') and 'end_session' in str(fc):
+                                    tool_name = 'end_session_tool'
 
-                    if tool_name == 'end_session_tool':
-                        print(f"\n\n👋 AI assistant decided to end the session")
-                        print("Ending session gracefully...")
-                        await asyncio.sleep(5.0)
-                        state.should_end_session = True
-                        await asyncio.sleep(5.0)
-                        if state.session_ended_callback:
-                            await state.session_ended_callback("ai_initiated")
-                        await asyncio.sleep(5.0)
-                        return
+                        if tool_name == 'end_session_tool':
+                            state.end_session_requested = True
 
-                    # Extract user transcription if available
-                    if hasattr(server_content, 'interrupted') and server_content.interrupted:
-                        # User interrupted - capture what they said
-                        pass  # Handled in grounding metadata
-
-                # Check for grounding metadata (user speech transcription)
-                if hasattr(response, 'server_content') and response.server_content:
-                    if hasattr(response.server_content, 'grounding_metadata'):
-                        metadata = response.server_content.grounding_metadata
-                        if hasattr(metadata, 'search_entry_point') and hasattr(metadata.search_entry_point,
-                                                                               'rendered_content'):
-                            # Sometimes transcription is here
-                            pass
-
-                # Try to extract user text from turn_complete with grounding
-                if server_content and hasattr(server_content, 'turn_complete') and server_content.turn_complete:
-                    # Check if there's user input text we can extract
-                    # Note: Gemini Live API may not expose user transcription directly
-                    # You may need to use a separate STT service for user transcription
-                    pass
-
-        except asyncio.CancelledError:
-            break
-        except ConnectionClosedError:
-            print("\nConnection closed.")
-            if state.session_ended_callback:
-                try:
-                    await state.session_ended_callback("connection_closed")
-                except Exception:
-                    pass
-            break
-        except AttributeError as e:
-            # Debug: print the structure of the tool call
-            print(f"\nDebug - AttributeError: {e}")
-            if hasattr(response, 'tool_call'):
-                print(f"Tool call structure: {response.tool_call}")
-                print(f"Tool call type: {type(response.tool_call)}")
-                print(f"Tool call attributes: {dir(response.tool_call)}")
-            continue
-        except Exception as e:
-            print(f"Output loop error: {e}")
-            traceback.print_exc()
-            break
+            except asyncio.CancelledError:
+                print("\n[Output Loop] Cancelled")
+                break
+            except ConnectionClosedError:
+                print("\n[Output Loop] Connection closed.")
+                state.should_end_session = True
+                if state.session_ended_callback:
+                    try:
+                        await state.session_ended_callback("connection_closed")
+                    except Exception:
+                        pass
+                break
+            except AttributeError as e:
+                print(f"\n[Output Loop] Debug - AttributeError: {e}")
+                if hasattr(response, 'tool_call'):
+                    print(f"Tool call structure: {response.tool_call}")
+                    print(f"Tool call type: {type(response.tool_call)}")
+                    print(f"Tool call attributes: {dir(response.tool_call)}")
+                continue
+            except Exception as e:
+                print(f"[Output Loop] Error: {e}")
+                traceback.print_exc()
+                break
+    finally:
+        print("[Output Loop] Exiting...")
 
 
 async def context_injection_loop(session, state):
@@ -286,13 +254,12 @@ async def context_injection_loop(session, state):
         while not state.should_end_session:
             await asyncio.sleep(45)  # Update every 45 seconds
 
-            if state.live_coordinator:
+            if state.live_coordinator and not state.end_session_requested:
                 context = await state.live_coordinator.get_context_for_agent()
 
                 if context and context != state.last_context_update:
                     state.last_context_update = context
 
-                    # Inject context as a system message
                     print(f"\n{'─' * 60}")
                     print(f"💡 [Context Injector] Sending live insights to wellness agent...")
                     print(f"{'─' * 60}")
@@ -416,6 +383,7 @@ class WellnessAgentLive:
                 print("✅ All systems active - conversation ready!\n")
 
                 # Monitor for session end
+                print("\n[Main] Waiting for session to end...")
                 while not state.should_end_session:
                     done, pending = await asyncio.wait(
                         [input_task, output_task, context_task],
@@ -425,20 +393,38 @@ class WellnessAgentLive:
 
                     for task in done:
                         if task.exception():
-                            print(f"\nTask error: {task.exception()}")
+                            print(f"\n[Main] Task error: {task.exception()}")
                             state.should_end_session = True
                             break
 
-                # Cleanup
-                for task in [input_task, output_task, context_task]:
+                print("\n[Main] Session end signal received, cleaning up...")
+
+                # Wait for output task to complete (it handles final audio)
+                print("[Main] Waiting for output task...")
+                try:
+                    await asyncio.wait_for(output_task, timeout=5.0)
+                    print("[Main] Output task completed")
+                except asyncio.TimeoutError:
+                    print("[Main] Output task timeout, forcing cancel")
+                    if not output_task.done():
+                        output_task.cancel()
+                except asyncio.CancelledError:
+                    pass
+                except Exception as e:
+                    print(f"[Main] Output task error: {e}")
+
+                # Cancel remaining tasks
+                print("[Main] Cancelling remaining tasks...")
+                for task in [input_task, context_task]:
                     if not task.done():
                         task.cancel()
                         try:
                             await task
-                        except asyncio.CancelledError:
+                        except (asyncio.CancelledError, Exception):
                             pass
 
                 # Stop coordinator
+                print("[Main] Stopping coordinator...")
                 await live_coordinator.stop()
 
                 print("\n✅ Session ended successfully.")

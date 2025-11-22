@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baby Buddha Icon</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .icon {
+      position: relative;
+      animation: float 5s ease-in-out infinite, glow 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-15px) scale(1.01);
+      }
+    }
+
+    @keyframes glow {
+      0%, 100% {
+        filter: drop-shadow(0 0 30px rgba(255, 200, 150, 0.4));
+      }
+      50% {
+        filter: drop-shadow(0 0 50px rgba(255, 180, 120, 0.7));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .icon svg {
+        width: 300px;
+        height: 300px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="icon">
+    <svg width="400" height="400" viewbox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><defs><!-- Skin gradient -->
+      <lineargradient id="skinGradient" x1="30%" y1="20%" x2="70%" y2="80%">
+       <stop offset="0%" style="stop-color:#ffd4ad;stop-opacity:1" />
+       <stop offset="50%" style="stop-color:#ffb88a;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ff9966;stop-opacity:1" />
+      </lineargradient> <!-- Robe gradient -->
+      <lineargradient id="robeGradient" x1="20%" y1="0%" x2="80%" y2="100%">
+       <stop offset="0%" style="stop-color:#ffb366;stop-opacity:1" />
+       <stop offset="50%" style="stop-color:#ff9933;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+      </lineargradient> <!-- Halo gradient -->
+      <radialgradient id="haloGradient" cx="50%" cy="50%">
+       <stop offset="0%" style="stop-color:#fff9e6;stop-opacity:0.9" />
+       <stop offset="50%" style="stop-color:#ffe4a8;stop-opacity:0.6" />
+       <stop offset="100%" style="stop-color:#ffb366;stop-opacity:0" />
+      </radialgradient> <!-- Ambient glow -->
+      <radialgradient id="ambientGlow" cx="50%" cy="50%">
+       <stop offset="0%" style="stop-color:#fff5eb;stop-opacity:0.5" />
+       <stop offset="50%" style="stop-color:#ffd4ad;stop-opacity:0.3" />
+       <stop offset="100%" style="stop-color:#ff9966;stop-opacity:0" />
+      </radialgradient> <!-- Shadow gradient -->
+      <radialgradient id="shadowGrad" cx="50%" cy="40%">
+       <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:0" />
+       <stop offset="60%" style="stop-color:#ff6b35;stop-opacity:0.2" />
+       <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:0.4" />
+      </radialgradient>
+     </defs> <!-- Ambient glow background --> <ellipse cx="200" cy="220" rx="170" ry="150" fill="url(#ambientGlow)">
+      <animate attributename="rx" values="160;180;160" dur="4s" repeatcount="indefinite" />
+      <animate attributename="ry" values="140;160;140" dur="4s" repeatcount="indefinite" />
+      <animate attributename="opacity" values="0.4;0.7;0.4" dur="4s" repeatcount="indefinite" />
+     </ellipse> <!-- Halo behind head --> <circle cx="200" cy="150" r="70" fill="url(#haloGradient)">
+      <animate attributename="r" values="65;75;65" dur="4s" repeatcount="indefinite" />
+      <animate attributename="opacity" values="0.7;1;0.7" dur="4s" repeatcount="indefinite" />
+     </circle> <!-- Inner halo ring --> <circle cx="200" cy="150" r="55" fill="none" stroke="#ffe4a8" stroke-width="2" opacity="0.5">
+      <animate attributename="r" values="50;58;50" dur="4s" repeatcount="indefinite" />
+     </circle> <!-- Buddha silhouette as single unified shape --> <g opacity="0.95"><!-- Main silhouette body -->
+      <path d="M 200 100 
+                   Q 215 105 220 120
+                   L 220 135
+                   Q 245 135 250 150
+                   Q 253 165 250 180
+                   L 258 215
+                   Q 265 235 260 250
+                   Q 258 270 245 280
+                   L 235 290
+                   Q 240 295 245 305
+                   Q 250 318 230 325
+                   L 170 325
+                   Q 150 318 155 305
+                   Q 160 295 165 290
+                   L 155 280
+                   Q 142 270 140 250
+                   Q 135 235 142 215
+                   L 150 180
+                   Q 147 165 150 150
+                   Q 155 135 180 135
+                   L 180 120
+                   Q 185 105 200 100 Z" fill="#ff8c52" stroke="#ffb88a" stroke-width="3">
+       <animate attributename="opacity" values="0.95;1;0.95" dur="4s" repeatcount="indefinite" />
+      </path> <!-- Glow outline -->
+      <path d="M 200 100 
+                   Q 215 105 220 120
+                   L 220 135
+                   Q 245 135 250 150
+                   Q 253 165 250 180
+                   L 258 215
+                   Q 265 235 260 250
+                   Q 258 270 245 280
+                   L 235 290
+                   Q 240 295 245 305
+                   Q 250 318 230 325
+                   L 170 325
+                   Q 150 318 155 305
+                   Q 160 295 165 290
+                   L 155 280
+                   Q 142 270 140 250
+                   Q 135 235 142 215
+                   L 150 180
+                   Q 147 165 150 150
+                   Q 155 135 180 135
+                   L 180 120
+                   Q 185 105 200 100 Z" fill="none" stroke="#ffe4a8" stroke-width="5" opacity="0.6">
+       <animate attributename="stroke-width" values="4;6;4" dur="4s" repeatcount="indefinite" />
+       <animate attributename="opacity" values="0.4;0.7;0.4" dur="4s" repeatcount="indefinite" />
+      </path>
+     </g>
+    </svg>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fff5e6",
+      skin_color: "#ff9966",
+      robe_color: "#ff9933",
+      halo_color: "#ffe4a8",
+      accent_color: "#ff6b35",
+      font_family: "SF Pro Display",
+      font_size: 16
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${adjustBrightness(config.background_color || defaultConfig.background_color, -10)} 100%)`;
+    }
+
+    function adjustBrightness(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.skin_color || defaultConfig.skin_color,
+            set: (value) => {
+              config.skin_color = value;
+              window.elementSdk.setConfig({ skin_color: value });
+            }
+          },
+          {
+            get: () => config.robe_color || defaultConfig.robe_color,
+            set: (value) => {
+              config.robe_color = value;
+              window.elementSdk.setConfig({ robe_color: value });
+            }
+          },
+          {
+            get: () => config.halo_color || defaultConfig.halo_color,
+            set: (value) => {
+              config.halo_color = value;
+              window.elementSdk.setConfig({ halo_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              window.elementSdk.setConfig({ accent_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a29415d8325060b',t:'MTc2MzgyMzE5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

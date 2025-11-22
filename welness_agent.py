@@ -8,6 +8,8 @@ from google.genai import types
 from websockets.exceptions import ConnectionClosedError
 from typing import Optional, List
 from dataclasses import dataclass
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # Define the end_session tool for the LLM

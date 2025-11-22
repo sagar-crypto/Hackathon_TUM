@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Agent - Voice Session</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .session-status {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .session-status.active {
+            display: block;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.6;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .btn-recorder {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: all 0.3s;
+        }
+
+        .btn-recorder:hover:not(:disabled) {
+            transform: scale(1.1);
+            background: #ff5252;
+        }
+
+        .btn-recorder.recording {
+            animation: recording-pulse 1s infinite;
+            background: #ff3333;
+        }
+
+        @keyframes recording-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .transcript {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+        }
+
+        .transcript-message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .transcript-message.user {
+            background: #e3f2fd;
+            color: #1565c0;
+            margin-left: 40px;
+            text-align: left;
+        }
+
+        .transcript-message.agent {
+            background: #f3e5f5;
+            color: #6a1b9a;
+            margin-right: 40px;
+            text-align: left;
+        }
+
+        .transcript-message.system {
+            background: #fff3e0;
+            color: #e65100;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .permission-prompt {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .permission-prompt.show {
+            display: block;
+        }
+
+        .audio-indicator {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .audio-bars {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            height: 30px;
+            align-items: flex-end;
+        }
+
+        .bar {
+            width: 4px;
+            background: #667eea;
+            border-radius: 2px;
+            animation: none;
+        }
+
+        .bar.active {
+            animation: audioBar 0.2s ease-in-out;
+        }
+
+        @keyframes audioBar {
+            0%, 100% { height: 5px; }
+            50% { height: 25px; }
+        }
+
+        .session-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 Wellness Agent</h1>
+        <p class="subtitle">Start a personalized wellness voice conversation</p>
+
+        <!-- Permission Prompt -->
+        <div class="permission-prompt" id="permissionPrompt">
+            <strong>🎤 Microphone Access Required</strong><br>
+            Please allow access to your microphone to start the conversation. Check your browser's permission dialog.
+        </div>
+
+        <!-- Setup Form -->
+        <div id="setupForm">
+            <div class="form-group">
+                <label for="name">Your Name *</label>
+                <input type="text" id="name" placeholder="Enter your name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mood">How are you feeling? *</label>
+                <select id="mood" required>
+                    <option value="">Select your mood</option>
+                    <option value="great">Great - Feeling good</option>
+                    <option value="good">Good - Feeling okay</option>
+                    <option value="neutral">Neutral - Normal day</option>
+                    <option value="stressed">Stressed - A bit overwhelmed</option>
+                    <option value="anxious">Anxious - Worried or nervous</option>
+                    <option value="low">Low - Not feeling great</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="steps">Steps Today (optional)</label>
+                    <input type="number" id="steps" placeholder="e.g., 5000" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="sleep">Sleep Last Night (hours, optional)</label>
+                    <input type="number" id="sleep" placeholder="e.g., 7.5" min="0" max="12" step="0.5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="goals">Your Goals (optional)</label>
+                <textarea id="goals" placeholder="e.g., sleep better, be more active, reduce stress"></textarea>
+            </div>
+
+            <div class="controls">
+                <button class="btn-primary" id="startBtn" onclick="startSession()">
+                    🎤 Start Session
+                </button>
+            </div>
+        </div>
+
+        <!-- Session Container -->
+        <div id="sessionContainer" class="hidden">
+            <div class="session-status active">
+                <span class="status-indicator"></span>
+                <strong>Session Active</strong> - Conversation in progress
+            </div>
+
+            <div class="audio-indicator" id="audioIndicator" style="display: none;">
+                <p style="margin-bottom: 10px; color: #666; font-size: 13px;">🎙️ <span id="audioStatus">Ready to listen...</span></p>
+                <div class="audio-bars" id="audioBars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+
+            <div class="transcript" id="transcript"></div>
+
+            <div class="session-info" id="sessionInfo"></div>
+
+            <div class="controls" style="margin-top: 20px;">
+                <button class="btn-recorder" id="talkBtn" onclick="toggleMicrophone()" title="Click to talk">
+                    🎤
+                </button>
+                <button class="btn-danger" id="endBtn" onclick="endSession()">
+                    👋 End Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const WS_URL = 'ws://localhost:8000';
+        
+        let sessionId = null;
+        let sessionActive = false;
+        let pollingInterval = null;
+        let ws = null;
+        
+        // Audio variables
+        let mediaStream = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioContext = null;
+        let analyser = null;
+        let animationId = null;
+
+        // Request microphone access
+        async function requestMicrophoneAccess() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                setupAudioContext();
+                document.getElementById('permissionPrompt').classList.remove('show');
+                return true;
+            } catch (error) {
+                console.error('Microphone access denied:', error);
+                document.getElementById('permissionPrompt').classList.add('show');
+                return false;
+            }
+        }
+
+        function setupAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(mediaStream);
+                source.connect(analyser);
+            }
+        }
+
+        function visualizeAudio() {
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+            
+            const bars = document.querySelectorAll('.bar');
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            
+            bars.forEach((bar, index) => {
+                if (average > index * 20) {
+                    bar.classList.add('active');
+                } else {
+                    bar.classList.remove('active');
+                }
+            });
+            
+            if (isRecording) {
+                animationId = requestAnimationFrame(visualizeAudio);
+            }
+        }
+
+        async function toggleMicrophone() {
+            if (!mediaStream) {
+                const hasAccess = await requestMicrophoneAccess();
+                if (!hasAccess) return;
+            }
+
+            const talkBtn = document.getElementById('talkBtn');
+            
+            if (isRecording) {
+                stopRecording();
+                talkBtn.classList.remove('recording');
+            } else {
+                startRecording();
+                talkBtn.classList.add('recording');
+                document.getElementById('audioIndicator').style.display = 'block';
+                visualizeAudio();
+            }
+        }
+
+        function startRecording() {
+            audioChunks = [];
+            mediaRecorder = new MediaRecorder(mediaStream);
+            
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                await sendAudio(audioBlob);
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            document.getElementById('audioStatus').textContent = '🔴 Recording...';
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('audioStatus').textContent = 'Processing...';
+            }
+        }
+
+        async function sendAudio(audioBlob) {
+            if (!sessionId) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+                
+                const response = await fetch(`${API_URL}/session/${sessionId}/audio`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Failed to send audio');
+                
+                const data = await response.json();
+                
+                // Play response audio
+                if (data.audio) {
+                    playAudio(data.audio);
+                }
+                
+                addTranscriptMessage(data.user_text, 'user');
+                if (data.agent_text) {
+                    addTranscriptMessage(data.agent_text, 'agent');
+                }
+                
+                document.getElementById('audioStatus').textContent = '🎙️ Ready to listen...';
+                
+            } catch (error) {
+                console.error('Error sending audio:', error);
+                document.getElementById('audioStatus').textContent = '❌ Error sending audio';
+            }
+        }
+
+        async function playAudio(base64Audio) {
+            try {
+                const binaryString = atob(base64Audio);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                const audio = new Audio(audioUrl);
+                await audio.play();
+            } catch (error) {
+                console.error('Error playing audio:', error);
+            }
+        }
+
+        async function startSession() {
+            const name = document.getElementById('name').value.trim();
+            const mood = document.getElementById('mood').value;
+            const steps = document.getElementById('steps').value;
+            const sleep = document.getElementById('sleep').value;
+            const goals = document.getElementById('goals').value.trim();
+
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            if (!mood) {
+                alert('Please select your mood');
+                return;
+            }
+
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<span class="spinner"></span>Starting...';
+
+            try {
+                const payload = {
+                    name: name,
+                    mood: mood,
+                    health: {
+                        steps_today: steps ? parseInt(steps) : null,
+                        sleep_hours_last_night: sleep ? parseFloat(sleep) : null
+                    },
+                    conversation_summary: `User feeling ${mood}`,
+                    goals: goals || null
+                };
+
+                console.log('Starting session with payload:', payload);
+
+                const response = await fetch(`${API_URL}/start-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                sessionId = data.session_id;
+                sessionActive = true;
+
+                console.log('Session started:', sessionId);
+
+                // Request microphone access
+                const hasAccess = await requestMicrophoneAccess();
+                if (!hasAccess) {
+                    throw new Error('Microphone access required');
+                }
+
+                // Show session UI
+                document.getElementById('setupForm').classList.add('hidden');
+                document.getElementById('sessionContainer').classList.remove('hidden');
+                document.getElementById('sessionInfo').innerHTML = `<strong>Session ID:</strong> ${sessionId}<br><strong>User:</strong> ${name}`;
+                
+                // Connect WebSocket
+                connectWebSocket();
+                
+                // Start polling for status
+                pollSessionStatus();
+
+            } catch (error) {
+                console.error('Error starting session:', error);
+                alert(`Failed to start session: ${error.message}`);
+                startBtn.disabled = false;
+                startBtn.innerHTML = '🎤 Start Session';
+            }
+        }
+
+        function connectWebSocket() {
+            if (!sessionId) return;
+            
+            ws = new WebSocket(`${WS_URL}/ws/session/${sessionId}`);
+            
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                addTranscriptMessage('Session connected. Click the microphone button to start talking.', 'system');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message:', data);
+                
+                if (data.type === 'session_ended') {
+                    addTranscriptMessage(`Session ended: ${data.reason}`, 'system');
+                    sessionActive = false;
+                }
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+            };
+        }
+
+        async function pollSessionStatus() {
+            if (!sessionId) return;
+
+            const poll = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/session/${sessionId}/status`);
+                    if (!response.ok) throw new Error('Status check failed');
+
+                    const data = await response.json();
+                    
+                    if (data.ended) {
+                        sessionActive = false;
+                        clearInterval(pollingInterval);
+                        addTranscriptMessage(`✅ Session ended: ${data.reason}`, 'system');
+                        document.getElementById('endBtn').disabled = true;
+                        document.getElementById('talkBtn').disabled = true;
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            };
+            
+            pollingInterval = setInterval(poll, 2000);
+            await poll(); // Initial poll
+        }
+
+        async function endSession() {
+            if (!sessionId) return;
+
+            if (isRecording) {
+                stopRecording();
+            }
+
+            const endBtn = document.getElementById('endBtn');
+            endBtn.disabled = true;
+            endBtn.innerHTML = '<span class="spinner"></span>Ending...';
+
+            addTranscriptMessage('Session ending...', 'system');
+        }
+
+        function addTranscriptMessage(text, speaker) {
+            const transcript = document.getElementById('transcript');
+            const message = document.createElement('div');
+            message.className = `transcript-message ${speaker}`;
+            message.textContent = text;
+            transcript.appendChild(message);
+            transcript.scrollTop = transcript.scrollHeight;
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (ws) {
+                ws.close();
+            }
+        });
+
+        // Request microphone access on page load for better UX
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Your browser does not support microphone access. Please use Chrome, Firefox, Safari, or Edge.');
+            }
+        });
+    </script>
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaching Hand</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hand {
+      position: relative;
+      animation: float 4s ease-in-out infinite, glow 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 40px rgba(255, 200, 150, 0.6));
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) translateX(0) rotate(-5deg);
+      }
+      50% {
+        transform: translateY(-20px) translateX(10px) rotate(-3deg);
+      }
+    }
+
+    @keyframes glow {
+      0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(255, 200, 150, 0.6));
+      }
+      50% {
+        filter: drop-shadow(0 0 70px rgba(255, 180, 120, 0.9));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hand svg {
+        width: 300px;
+        height: 300px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="hand">
+    <svg width="400" height="400" viewbox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><defs>
+      <lineargradient id="handGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#ffe4a8;stop-opacity:1" />
+       <stop offset="40%" style="stop-color:#ffb366;stop-opacity:1" />
+       <stop offset="70%" style="stop-color:#ff8c42;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+      </lineargradient>
+      <lineargradient id="palmGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#fff5e6;stop-opacity:1" />
+       <stop offset="50%" style="stop-color:#ffd9a8;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ffb366;stop-opacity:1" />
+      </lineargradient>
+      <radialgradient id="glowGradient" cx="50%" cy="50%" r="50%">
+       <stop offset="0%" style="stop-color:#fff9e6;stop-opacity:0.8" />
+       <stop offset="50%" style="stop-color:#ffe4a8;stop-opacity:0.4" />
+       <stop offset="100%" style="stop-color:#ff8c42;stop-opacity:0" />
+      </radialgradient>
+     </defs> <!-- Glow background --> <circle cx="200" cy="200" r="150" fill="url(#glowGradient)" opacity="0.6">
+      <animate attributename="r" values="140;160;140" dur="3s" repeatcount="indefinite" />
+      <animate attributename="opacity" values="0.5;0.7;0.5" dur="3s" repeatcount="indefinite" />
+     </circle> <!-- Palm --> <ellipse cx="200" cy="240" rx="65" ry="85" fill="url(#palmGradient)" opacity="0.95" /> <!-- Thumb --> <path d="M 145 230 Q 120 220 110 200 Q 105 185 115 170 Q 125 160 140 165 Q 150 170 155 185 L 165 210 Z" fill="url(#handGradient)" opacity="0.9" /> <!-- Index finger (pointing up and forward) --> <path d="M 180 180 Q 175 140 180 100 Q 182 75 195 70 Q 208 68 212 80 Q 215 95 210 130 L 200 175 Z" fill="url(#handGradient)" opacity="0.95" /> <!-- Middle finger --> <path d="M 200 180 Q 200 130 205 85 Q 208 60 220 58 Q 232 58 235 70 Q 237 90 232 130 L 220 175 Z" fill="url(#handGradient)" opacity="0.95" /> <!-- Ring finger --> <path d="M 220 185 Q 225 140 230 100 Q 233 78 243 75 Q 255 74 258 88 Q 260 105 255 140 L 245 180 Z" fill="url(#handGradient)" opacity="0.9" /> <!-- Pinky --> <path d="M 240 195 Q 248 160 255 130 Q 258 110 268 108 Q 278 108 280 120 Q 282 135 277 160 L 265 195 Z" fill="url(#handGradient)" opacity="0.85" /> <!-- Highlights on fingers --> <ellipse cx="195" cy="90" rx="8" ry="15" fill="#fff9e6" opacity="0.4" /> <ellipse cx="220" cy="80" rx="8" ry="15" fill="#fff9e6" opacity="0.4" /> <ellipse cx="243" cy="90" rx="7" ry="13" fill="#fff9e6" opacity="0.3" /> <!-- Palm highlight --> <ellipse cx="185" cy="220" rx="25" ry="35" fill="#fff9e6" opacity="0.25" />
+    </svg>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fff5e6",
+      hand_primary: "#ff6b35",
+      hand_secondary: "#ffb366",
+      glow_color: "#ffe4a8",
+      highlight_color: "#fff9e6",
+      font_family: "SF Pro Display",
+      font_size: 16
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${adjustBrightness(config.background_color || defaultConfig.background_color, -10)} 100%)`;
+    }
+
+    function adjustBrightness(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.hand_primary || defaultConfig.hand_primary,
+            set: (value) => {
+              config.hand_primary = value;
+              window.elementSdk.setConfig({ hand_primary: value });
+            }
+          },
+          {
+            get: () => config.hand_secondary || defaultConfig.hand_secondary,
+            set: (value) => {
+              config.hand_secondary = value;
+              window.elementSdk.setConfig({ hand_secondary: value });
+            }
+          },
+          {
+            get: () => config.glow_color || defaultConfig.glow_color,
+            set: (value) => {
+              config.glow_color = value;
+              window.elementSdk.setConfig({ glow_color: value });
+            }
+          },
+          {
+            get: () => config.highlight_color || defaultConfig.highlight_color,
+            set: (value) => {
+              config.highlight_color = value;
+              window.elementSdk.setConfig({ highlight_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a27f032c726e0d3',t:'MTc2MzgwOTM4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

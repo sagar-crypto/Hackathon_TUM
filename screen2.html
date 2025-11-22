@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wellness Hierarchy</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .pyramid {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      height: 550px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0;
+    }
+
+    .level {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .level:hover {
+      transform: translateY(-15px) scale(1.03);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+      z-index: 10;
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .level-content {
+      text-align: center;
+      padding: 30px 20px;
+      color: white;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .level-1 {
+      height: 180px;
+      width: 100%;
+      clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    }
+
+    .level-2 {
+      height: 150px;
+      width: 70%;
+      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    }
+
+    .level-3 {
+      height: 120px;
+      width: 45%;
+      clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+    }
+
+    .level-title {
+      font-size: 32px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .level-2 .level-title {
+      font-size: 28px;
+    }
+
+    .level-3 .level-title {
+      font-size: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .pyramid {
+        max-width: 500px;
+        height: 450px;
+      }
+
+      .level-1 {
+        height: 150px;
+      }
+
+      .level-2 {
+        height: 130px;
+      }
+
+      .level-3 {
+        height: 110px;
+      }
+
+      .level-title {
+        font-size: 24px;
+      }
+
+      .level-2 .level-title {
+        font-size: 20px;
+      }
+
+      .level-3 .level-title {
+        font-size: 18px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="pyramid">
+    <div class="level level-3" id="level-3">
+     <div class="level-content">
+      <div class="level-title" id="level-3-text">
+       Social Wellness
+      </div>
+     </div>
+    </div>
+    <div class="level level-2" id="level-2">
+     <div class="level-content">
+      <div class="level-title" id="level-2-text">
+       Mental Wellness
+      </div>
+     </div>
+    </div>
+    <div class="level level-1" id="level-1">
+     <div class="level-content">
+      <div class="level-title" id="level-1-text">
+       Physical Wellness
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fff5e6",
+      level_1_color: "#ff6b35",
+      level_2_color: "#ff8c42",
+      level_3_color: "#ffa654",
+      text_color: "#ffffff",
+      font_family: "Segoe UI",
+      font_size: 16,
+      level_1_text: "Physical Wellness",
+      level_2_text: "Mental Wellness",
+      level_3_text: "Social Wellness"
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const baseFontStack = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+      
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, #ffe8cc 100%)`;
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      
+      const level1 = document.getElementById('level-1');
+      const level2 = document.getElementById('level-2');
+      const level3 = document.getElementById('level-3');
+      
+      const level1Color = config.level_1_color || defaultConfig.level_1_color;
+      const level2Color = config.level_2_color || defaultConfig.level_2_color;
+      const level3Color = config.level_3_color || defaultConfig.level_3_color;
+      
+      level1.style.background = `linear-gradient(135deg, ${level1Color} 0%, ${adjustBrightness(level1Color, 20)} 100%)`;
+      level2.style.background = `linear-gradient(135deg, ${level2Color} 0%, ${adjustBrightness(level2Color, 20)} 100%)`;
+      level3.style.background = `linear-gradient(135deg, ${level3Color} 0%, ${adjustBrightness(level3Color, 20)} 100%)`;
+      
+      const level1Text = document.getElementById('level-1-text');
+      const level2Text = document.getElementById('level-2-text');
+      const level3Text = document.getElementById('level-3-text');
+      
+      level1Text.textContent = config.level_1_text || defaultConfig.level_1_text;
+      level2Text.textContent = config.level_2_text || defaultConfig.level_2_text;
+      level3Text.textContent = config.level_3_text || defaultConfig.level_3_text;
+      
+      const textColor = config.text_color || defaultConfig.text_color;
+      level1Text.style.color = textColor;
+      level2Text.style.color = textColor;
+      level3Text.style.color = textColor;
+      
+      level1Text.style.fontSize = `${baseSize * 2}px`;
+      level2Text.style.fontSize = `${baseSize * 1.75}px`;
+      level3Text.style.fontSize = `${baseSize * 1.5}px`;
+    }
+
+    function adjustBrightness(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.level_1_color || defaultConfig.level_1_color,
+            set: (value) => {
+              config.level_1_color = value;
+              window.elementSdk.setConfig({ level_1_color: value });
+            }
+          },
+          {
+            get: () => config.level_2_color || defaultConfig.level_2_color,
+            set: (value) => {
+              config.level_2_color = value;
+              window.elementSdk.setConfig({ level_2_color: value });
+            }
+          },
+          {
+            get: () => config.level_3_color || defaultConfig.level_3_color,
+            set: (value) => {
+              config.level_3_color = value;
+              window.elementSdk.setConfig({ level_3_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["level_1_text", config.level_1_text || defaultConfig.level_1_text],
+        ["level_2_text", config.level_2_text || defaultConfig.level_2_text],
+        ["level_3_text", config.level_3_text || defaultConfig.level_3_text]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a27b49805b0e0d3',t:'MTc2MzgwNjk0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

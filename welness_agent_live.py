@@ -64,6 +64,34 @@ class UserContext:
     conversation_summary: Optional[str] = None
     goals: Optional[str] = None
 
+def build_wellness_context(ctx: UserContext) -> str:
+    """
+    Build a short text summary of the user's state for the wellness agent.
+    Used for both voice (initial context) and text chat.
+    """
+    parts = []
+    parts.append(f"The user's name is {ctx.name}.")
+    if ctx.mood:
+        parts.append(f"They currently feel {ctx.mood}.")
+    if ctx.health:
+        if ctx.health.steps_today is not None:
+            parts.append(f"Today they have walked about {ctx.health.steps_today} steps.")
+        if ctx.health.sleep_hours_last_night is not None:
+            parts.append(
+                f"Last night they slept about {ctx.health.sleep_hours_last_night:.1f} hours."
+            )
+    if ctx.conversation_summary:
+        parts.append(
+            f"In the previous conversation, they said: {ctx.conversation_summary}"
+        )
+    if ctx.goals:
+        parts.append(f"Their current wellbeing goals are: {ctx.goals}.")
+    parts.append(
+        "Start by gently acknowledging anything notable (like low activity or poor sleep), "
+        "then ask how they are feeling about their day. Keep the tone warm and non-judgmental."
+    )
+    return " ".join(parts)
+
 
 # Audio Configuration
 INPUT_SAMPLE_RATE = 16000
@@ -443,6 +471,68 @@ class WellnessAgentLive:
                 await on_session_end("user_interrupted")
         finally:
             audio_handler.close()
+
+    async def chat(
+        self,
+        user_message: str,
+        user_context: Optional[UserContext] = None,
+    ) -> str:
+        """
+        Text-only wellness chat using the SAME live model.
+        Opens a short-lived live session with response_modalities=['TEXT'].
+        """
+        # Build config for text responses
+        config = types.LiveConnectConfig(
+            response_modalities=["TEXT"],
+            system_instruction=WELLNESS_SYSTEM_PROMPT,
+            # We don't need tools / audio here, just a simple text reply
+        )
+
+        async with self.client.aio.live.connect(
+            model=self.model_id,
+            config=config,
+        ) as session:
+            # 1) Optional dynamic context message
+            if user_context is not None:
+                context_text = build_wellness_context(user_context)
+                await session.send_client_content(
+                    turns=types.Content(
+                        role="user",
+                        parts=[types.Part(text=context_text)],
+                    ),
+                    turn_complete=True,
+                )
+
+            # 2) Actual user message
+            await session.send_client_content(
+                turns=types.Content(
+                    role="user",
+                    parts=[types.Part(text=user_message)],
+                ),
+                turn_complete=True,
+            )
+
+            # 3) Collect streamed text reply
+            reply_chunks: list[str] = []
+
+            async for response in session.receive():
+                server_content = response.server_content
+                if not server_content:
+                    continue
+
+                if server_content.model_turn:
+                    for part in server_content.model_turn.parts:
+                        if hasattr(part, "text") and part.text:
+                            reply_chunks.append(part.text)
+
+                if server_content.turn_complete:
+                    break
+
+            if not reply_chunks:
+                return "I'm sorry, I’m having trouble responding right now."
+
+            return "".join(reply_chunks).strip()
+
 
 
 async def main():

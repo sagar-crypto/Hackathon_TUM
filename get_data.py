@@ -39,10 +39,16 @@ async def fetch_ticketmaster_events(
 
     base_url = "https://app.ticketmaster.com/discovery/v2/events.json"
 
+    radius_int = int(radius_km)
+    if radius_int < 0:
+        radius_int = 0
+    if radius_int > 19999:
+        radius_int = 19999
+
     params = {
         "apikey": TICKETMASTER_API_KEY,
         "latlong": f"{lat},{lon}",
-        "radius": radius_km,
+        "radius": radius_int,   # 👈 now always an int
         "unit": "km",
         "size": size,
         "sort": "date,asc",

@@ -7,6 +7,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional
 import json
+from get_data import fetch_ticketmaster_events, TicketmasterError
+from db_client import fetch_social_events_by_name, DatabaseError
 
 # Import the necessary components
 from welness_agent import UserContext, HealthSnapshot
@@ -21,6 +23,14 @@ active_sessions = {}
 class HealthSnapshotIn(BaseModel):
     steps_today: Optional[int] = None
     sleep_hours_last_night: Optional[float] = None
+
+
+class EventsQuery(BaseModel):
+    lat: float          # device GPS latitude
+    lon: float          # device GPS longitude
+    radius_km: float = 20.0
+    keyword: Optional[str] = None  # e.g. "social", "music", "fitness"
+    size: int = 20
 
 
 class StartSessionRequest(BaseModel):
@@ -45,6 +55,9 @@ class SessionEndResponse(BaseModel):
     ended: bool
     reason: str
     timestamp: str
+
+class SocialEventQuery(BaseModel):
+    event_name: str
 
 
 # ---- FastAPI app ----
@@ -258,6 +271,42 @@ async def start_context_and_session(
     """
     return await start_session(req, background_tasks)
 
+
+
+@app.post("/events-near-me")
+async def events_near_me(query: EventsQuery):
+    """
+    Return a list of events near the given lat/lon using Ticketmaster Discovery API.
+    """
+    try:
+        events = await fetch_ticketmaster_events(
+            lat=query.lat,
+            lon=query.lon,
+            radius_km=query.radius_km,
+            keyword=query.keyword,
+            size=query.size,
+        )
+        return {"events": events, "count": len(events)}
+    except TicketmasterError as e:
+        # ticketmaster_client-specific error
+        raise HTTPException(status_code=502, detail=str(e))
+    except Exception as e:
+        # generic fallback
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+
+@app.post("/social-events")
+async def social_events(query: SocialEventQuery):
+    """
+    Return all social_events rows matching the given event_name (partial match).
+    """
+    try:
+        events = fetch_social_events_by_name(query.event_name)
+        return {"events": events, "count": len(events)}
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+    
 
 # ---- For local testing ----
 

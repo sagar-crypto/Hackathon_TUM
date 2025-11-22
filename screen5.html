@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dandelion Voice Assistant</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 40px;
+    }
+
+    .orb-container {
+      position: relative;
+      width: 350px;
+      height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .orb {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff9e6, #ffe4a8, #ffd580);
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 40px rgba(255, 213, 128, 0.6),
+                  0 0 80px rgba(255, 228, 168, 0.4),
+                  inset 0 0 60px rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orb::before {
+      content: '';
+      position: absolute;
+      width: 120%;
+      height: 120%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 228, 168, 0.3), transparent 70%);
+      animation: pulse-outer 2s ease-in-out infinite;
+    }
+
+    .orb::after {
+      content: '';
+      position: absolute;
+      width: 140%;
+      height: 140%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 213, 128, 0.2), transparent 70%);
+      animation: pulse-outer-2 2s ease-in-out infinite 0.5s;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 40px rgba(255, 213, 128, 0.6),
+                    0 0 80px rgba(255, 228, 168, 0.4),
+                    inset 0 0 60px rgba(255, 255, 255, 0.3);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 60px rgba(255, 213, 128, 0.8),
+                    0 0 120px rgba(255, 228, 168, 0.6),
+                    inset 0 0 80px rgba(255, 255, 255, 0.4);
+      }
+    }
+
+    @keyframes pulse-outer {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+      50% {
+        transform: scale(1.15);
+        opacity: 0.3;
+      }
+    }
+
+    @keyframes pulse-outer-2 {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 0.2;
+      }
+    }
+
+    .dandelion {
+      position: absolute;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      25% {
+        transform: translate(10px, -10px) rotate(5deg);
+      }
+      50% {
+        transform: translate(-5px, -15px) rotate(-3deg);
+      }
+      75% {
+        transform: translate(-10px, -8px) rotate(4deg);
+      }
+    }
+
+    .dandelion:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+    .dandelion:nth-child(2) { top: 15%; right: 20%; animation-delay: 0.5s; }
+    .dandelion:nth-child(3) { bottom: 20%; left: 10%; animation-delay: 1s; }
+    .dandelion:nth-child(4) { bottom: 15%; right: 15%; animation-delay: 1.5s; }
+    .dandelion:nth-child(5) { top: 40%; left: 5%; animation-delay: 2s; }
+    .dandelion:nth-child(6) { top: 45%; right: 8%; animation-delay: 2.5s; }
+    .dandelion:nth-child(7) { top: 25%; left: 50%; animation-delay: 3s; }
+    .dandelion:nth-child(8) { bottom: 30%; left: 48%; animation-delay: 3.5s; }
+
+    .text-container {
+      text-align: center;
+      z-index: 10;
+    }
+
+    .greeting {
+      font-size: 28px;
+      font-weight: 300;
+      margin-bottom: 8px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .assistant-name {
+      font-size: 18px;
+      font-weight: 500;
+      opacity: 0.7;
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-indicator {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: blink 1.4s infinite;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .orb-container {
+        width: 280px;
+        height: 280px;
+      }
+
+      .orb {
+        width: 160px;
+        height: 160px;
+      }
+
+      .greeting {
+        font-size: 24px;
+      }
+
+      .assistant-name {
+        font-size: 16px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="orb-container">
+    <div class="dandelion">
+     <svg width="70" height="70" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="20" y2="6" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="20" cy="4" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="30" y2="10" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="31" cy="9" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="34" y2="20" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="36" cy="20" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="30" y2="30" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="31" cy="31" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="20" y2="34" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="20" cy="36" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="10" y2="30" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="9" cy="31" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="6" y2="20" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="4" cy="20" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="10" y2="10" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="9" cy="9" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="65" height="65" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="10" y2="10" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="9" cy="9" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="6" y2="20" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="4" cy="20" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="30" y2="30" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="31" cy="31" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="25" y2="8" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="26" cy="6" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="34" y2="25" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="36" cy="26" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="68" height="68" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="20" y2="34" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="20" cy="36" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="10" y2="30" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="9" cy="31" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="14" y2="8" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="13" cy="6" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="32" y2="14" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="34" cy="13" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="6" y2="16" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="4" cy="15" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="66" height="66" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="32" y2="13" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="34" cy="12" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="26" y2="32" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="27" cy="34" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="8" y2="16" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="6" cy="15" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="20" y2="6" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="20" cy="4" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="12" y2="28" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="11" cy="30" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="64" height="64" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="14" y2="34" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="13" cy="36" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="8" y2="26" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="6" cy="28" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="28" y2="10" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="29" cy="8" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="34" y2="22" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="36" cy="23" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="67" height="67" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="34" y2="26" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="36" cy="27" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="26" y2="8" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="27" cy="6" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="10" y2="12" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="9" cy="11" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="14" y2="32" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="13" cy="34" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="63" height="63" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="20" y2="8" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="20" cy="6" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="30" y2="14" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="32" cy="13" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="12" y2="30" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="11" cy="32" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="6" y2="20" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="4" cy="20" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="dandelion">
+     <svg width="65" height="65" viewbox="0 0 40 40"><circle cx="20" cy="20" r="4" fill="#ff8c42" opacity="0.95" /> <line x1="20" y1="20" x2="17" y2="32" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="16" cy="34" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="10" y2="23" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="8" cy="24" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="28" y2="12" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="29" cy="11" r="3.5" fill="#fff9e6" opacity="0.95" /> <line x1="20" y1="20" x2="32" y2="26" stroke="#ffa654" stroke-width="2" opacity="0.9" /> <circle cx="34" cy="27" r="3.5" fill="#fff9e6" opacity="0.95" />
+     </svg>
+    </div>
+    <div class="orb" id="orb"></div>
+   </div>
+   <div class="text-container">
+    <div class="greeting" id="greeting">
+     How can I help you?
+    </div>
+    <div class="assistant-name" id="assistant-name">
+     Dandelion
+    </div>
+    <div class="status-indicator">
+     <div class="dot" id="dot1"></div>
+     <div class="dot" id="dot2"></div>
+     <div class="dot" id="dot3"></div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fff5e6",
+      orb_color: "#ff6b35",
+      text_color: "#d94e1f",
+      accent_color: "#ff8c42",
+      dot_color: "#ffa654",
+      font_family: "SF Pro Display",
+      font_size: 16,
+      greeting_text: "How can I help you?",
+      assistant_name: "Dandelion"
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const baseFontStack = 'SF Pro Display, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${adjustBrightness(config.background_color || defaultConfig.background_color, 15)} 100%)`;
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      
+      const orbColor = config.orb_color || defaultConfig.orb_color;
+      const accentColor = config.accent_color || defaultConfig.accent_color;
+      
+      const greeting = document.getElementById('greeting');
+      const assistantName = document.getElementById('assistant-name');
+      
+      greeting.textContent = config.greeting_text || defaultConfig.greeting_text;
+      assistantName.textContent = config.assistant_name || defaultConfig.assistant_name;
+      
+      const textColor = config.text_color || defaultConfig.text_color;
+      greeting.style.color = textColor;
+      assistantName.style.color = textColor;
+      
+      greeting.style.fontSize = `${baseSize * 1.75}px`;
+      assistantName.style.fontSize = `${baseSize * 1.125}px`;
+      
+      const dotColor = config.dot_color || defaultConfig.dot_color;
+      document.getElementById('dot1').style.backgroundColor = dotColor;
+      document.getElementById('dot2').style.backgroundColor = dotColor;
+      document.getElementById('dot3').style.backgroundColor = dotColor;
+    }
+
+    function adjustBrightness(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.orb_color || defaultConfig.orb_color,
+            set: (value) => {
+              config.orb_color = value;
+              window.elementSdk.setConfig({ orb_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              window.elementSdk.setConfig({ accent_color: value });
+            }
+          },
+          {
+            get: () => config.dot_color || defaultConfig.dot_color,
+            set: (value) => {
+              config.dot_color = value;
+              window.elementSdk.setConfig({ dot_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["greeting_text", config.greeting_text || defaultConfig.greeting_text],
+        ["assistant_name", config.assistant_name || defaultConfig.assistant_name]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a27e0d4f6fe1304',t:'MTc2MzgwODc1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

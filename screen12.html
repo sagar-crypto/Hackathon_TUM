@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaching Hand</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hand {
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+      filter: drop-shadow(0 0 60px rgba(255, 180, 120, 0.4));
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) translateX(0) rotate(-8deg);
+      }
+      50% {
+        transform: translateY(-15px) translateX(8px) rotate(-6deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hand svg {
+        width: 350px;
+        height: 350px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="hand">
+    <svg width="450" height="450" viewbox="0 0 450 450" xmlns="http://www.w3.org/2000/svg"><defs><!-- Soft gradient for the hand base -->
+      <lineargradient id="skinBase" x1="20%" y1="10%" x2="80%" y2="90%">
+       <stop offset="0%" style="stop-color:#ffe8d1;stop-opacity:1" />
+       <stop offset="35%" style="stop-color:#ffd4ad;stop-opacity:1" />
+       <stop offset="65%" style="stop-color:#ffb88a;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ff9966;stop-opacity:1" />
+      </lineargradient> <!-- Shadow gradient -->
+      <lineargradient id="shadowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#ff9966;stop-opacity:0.3" />
+       <stop offset="100%" style="stop-color:#cc6633;stop-opacity:0.6" />
+      </lineargradient> <!-- Highlight gradient -->
+      <radialgradient id="highlight" cx="40%" cy="30%">
+       <stop offset="0%" style="stop-color:#fffbf5;stop-opacity:0.9" />
+       <stop offset="60%" style="stop-color:#ffe8d1;stop-opacity:0.3" />
+       <stop offset="100%" style="stop-color:#ffb88a;stop-opacity:0" />
+      </radialgradient> <!-- Ambient glow -->
+      <radialgradient id="ambientGlow" cx="50%" cy="50%">
+       <stop offset="0%" style="stop-color:#fff5eb;stop-opacity:0.6" />
+       <stop offset="40%" style="stop-color:#ffd4ad;stop-opacity:0.3" />
+       <stop offset="100%" style="stop-color:#ff9966;stop-opacity:0" />
+      </radialgradient> <!-- Finger tip gradient -->
+      <radialgradient id="fingerTip" cx="50%" cy="40%">
+       <stop offset="0%" style="stop-color:#fffbf5;stop-opacity:0.8" />
+       <stop offset="50%" style="stop-color:#ffe8d1;stop-opacity:0.5" />
+       <stop offset="100%" style="stop-color:#ffb88a;stop-opacity:0.2" />
+      </radialgradient>
+     </defs> <!-- Ambient glow background --> <ellipse cx="225" cy="225" rx="180" ry="180" fill="url(#ambientGlow)">
+      <animate attributename="rx" values="170;190;170" dur="5s" repeatcount="indefinite" />
+      <animate attributename="ry" values="170;190;170" dur="5s" repeatcount="indefinite" />
+      <animate attributename="opacity" values="0.4;0.6;0.4" dur="5s" repeatcount="indefinite" />
+     </ellipse> <!-- Wrist --> <path d="M 160 350 Q 165 340 175 335 Q 200 325 225 325 Q 250 325 275 335 Q 285 340 290 350 L 285 380 Q 280 385 270 388 Q 225 395 180 388 Q 170 385 165 380 Z" fill="url(#skinBase)" opacity="0.95" /> <!-- Wrist shadow --> <ellipse cx="225" cy="355" rx="55" ry="12" fill="url(#shadowGrad)" opacity="0.25" /> <!-- Palm structure with proper curvature --> <path d="M 175 335 Q 165 320 162 300 Q 160 280 165 260 Q 170 240 180 225 Q 190 215 205 210 L 245 210 Q 260 215 270 225 Q 280 240 285 260 Q 290 280 288 300 Q 285 320 275 335 Z" fill="url(#skinBase)" /> <!-- Palm base highlight --> <ellipse cx="220" cy="280" rx="45" ry="50" fill="url(#highlight)" opacity="0.5" /> <!-- Thenar eminence (thumb muscle) --> <ellipse cx="165" cy="270" rx="22" ry="35" fill="url(#skinBase)" opacity="0.9" /> <ellipse cx="165" cy="265" rx="18" ry="28" fill="url(#highlight)" opacity="0.3" /> <!-- Thumb - metacarpal --> <path d="M 168 285 Q 155 275 145 260 Q 138 248 135 235 L 145 225 Q 155 222 165 228 Q 172 235 175 250 L 180 270 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 168 285 Q 155 275 145 260 Q 138 248 135 235 L 145 225 Q 155 222 165 228 Q 172 235 175 250 L 180 270 Z;
+                           M 168 285 Q 153 273 143 258 Q 136 246 133 233 L 143 223 Q 153 220 163 226 Q 170 233 173 248 L 180 270 Z;
+                           M 168 285 Q 155 275 145 260 Q 138 248 135 235 L 145 225 Q 155 222 165 228 Q 172 235 175 250 L 180 270 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Thumb - proximal phalanx --> <path d="M 135 235 Q 130 220 128 203 Q 127 190 130 178 L 142 172 Q 152 173 157 182 Q 160 195 158 210 L 145 225 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 135 235 Q 130 220 128 203 Q 127 190 130 178 L 142 172 Q 152 173 157 182 Q 160 195 158 210 L 145 225 Z;
+                           M 133 233 Q 128 218 126 201 Q 125 188 128 176 L 140 170 Q 150 171 155 180 Q 158 193 156 208 L 143 223 Z;
+                           M 135 235 Q 130 220 128 203 Q 127 190 130 178 L 142 172 Q 152 173 157 182 Q 160 195 158 210 L 145 225 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Thumb - distal phalanx --> <path d="M 130 178 Q 128 165 130 152 Q 132 140 140 133 Q 148 128 158 130 Q 166 134 170 143 Q 172 155 168 168 L 142 172 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 130 178 Q 128 165 130 152 Q 132 140 140 133 Q 148 128 158 130 Q 166 134 170 143 Q 172 155 168 168 L 142 172 Z;
+                           M 128 176 Q 126 163 128 150 Q 130 138 138 131 Q 146 126 156 128 Q 164 132 168 141 Q 170 153 166 166 L 140 170 Z;
+                           M 130 178 Q 128 165 130 152 Q 132 140 140 133 Q 148 128 158 130 Q 166 134 170 143 Q 172 155 168 168 L 142 172 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Thumb highlight and shadow --> <ellipse cx="148" cy="150" rx="9" ry="15" fill="url(#fingerTip)" opacity="0.6" /> <path d="M 140 165 Q 135 170 130 178" stroke="url(#shadowGrad)" stroke-width="2" fill="none" opacity="0.2" /> <!-- Index finger - metacarpal connection --> <path d="M 192 210 Q 188 195 188 178 L 200 175 Q 208 177 210 195 L 208 210 Z" fill="url(#skinBase)" /> <!-- Index finger - proximal phalanx --> <path d="M 188 178 Q 187 158 190 138 L 203 135 Q 210 137 211 158 L 200 175 Z" fill="url(#skinBase)" /> <!-- Index finger - middle phalanx --> <path d="M 190 138 Q 192 120 196 102 L 208 100 Q 214 102 214 120 L 203 135 Z" fill="url(#skinBase)" /> <!-- Index finger - distal phalanx --> <path d="M 196 102 Q 199 88 204 75 Q 208 65 216 62 Q 224 61 230 66 Q 234 73 232 86 Q 229 98 222 105 L 208 100 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 196 102 Q 199 88 204 75 Q 208 65 216 62 Q 224 61 230 66 Q 234 73 232 86 Q 229 98 222 105 L 208 100 Z;
+                           M 196 102 Q 200 90 206 77 Q 210 67 218 64 Q 226 63 232 68 Q 236 75 234 88 Q 231 100 224 105 L 208 100 Z;
+                           M 196 102 Q 199 88 204 75 Q 208 65 216 62 Q 224 61 230 66 Q 234 73 232 86 Q 229 98 222 105 L 208 100 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Index finger details --> <ellipse cx="218" cy="75" rx="8" ry="13" fill="url(#fingerTip)" opacity="0.7" /> <path d="M 200 110 Q 198 120 196 130" stroke="url(#shadowGrad)" stroke-width="1.5" fill="none" opacity="0.2" /> <!-- Middle finger - metacarpal connection --> <path d="M 215 210 Q 214 192 215 175 L 228 172 Q 235 174 236 192 L 233 210 Z" fill="url(#skinBase)" /> <!-- Middle finger - proximal phalanx --> <path d="M 215 175 Q 215 152 218 130 L 231 127 Q 237 129 238 152 L 228 172 Z" fill="url(#skinBase)" /> <!-- Middle finger - middle phalanx --> <path d="M 218 130 Q 220 110 224 92 L 236 90 Q 241 92 242 110 L 231 127 Z" fill="url(#skinBase)" /> <!-- Middle finger - distal phalanx --> <path d="M 224 92 Q 227 76 232 62 Q 236 50 244 46 Q 253 45 259 50 Q 263 58 261 73 Q 258 87 250 95 L 236 90 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 224 92 Q 227 76 232 62 Q 236 50 244 46 Q 253 45 259 50 Q 263 58 261 73 Q 258 87 250 95 L 236 90 Z;
+                           M 224 92 Q 228 78 234 64 Q 238 52 246 48 Q 255 47 261 52 Q 265 60 263 75 Q 260 89 252 95 L 236 90 Z;
+                           M 224 92 Q 227 76 232 62 Q 236 50 244 46 Q 253 45 259 50 Q 263 58 261 73 Q 258 87 250 95 L 236 90 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Middle finger details --> <ellipse cx="246" cy="60" rx="8" ry="14" fill="url(#fingerTip)" opacity="0.7" /> <path d="M 228 100 Q 226 112 224 125" stroke="url(#shadowGrad)" stroke-width="1.5" fill="none" opacity="0.2" /> <!-- Ring finger - metacarpal connection --> <path d="M 238 210 Q 239 194 241 178 L 253 176 Q 259 178 260 194 L 257 210 Z" fill="url(#skinBase)" /> <!-- Ring finger - proximal phalanx --> <path d="M 241 178 Q 243 158 246 138 L 258 136 Q 263 138 264 158 L 253 176 Z" fill="url(#skinBase)" /> <!-- Ring finger - middle phalanx --> <path d="M 246 138 Q 249 120 253 103 L 264 101 Q 269 103 269 120 L 258 136 Z" fill="url(#skinBase)" /> <!-- Ring finger - distal phalanx --> <path d="M 253 103 Q 257 89 262 76 Q 266 65 274 61 Q 282 60 288 65 Q 291 72 289 86 Q 286 98 279 105 L 264 101 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 253 103 Q 257 89 262 76 Q 266 65 274 61 Q 282 60 288 65 Q 291 72 289 86 Q 286 98 279 105 L 264 101 Z;
+                           M 253 103 Q 258 91 264 78 Q 268 67 276 63 Q 284 62 290 67 Q 293 74 291 88 Q 288 100 281 105 L 264 101 Z;
+                           M 253 103 Q 257 89 262 76 Q 266 65 274 61 Q 282 60 288 65 Q 291 72 289 86 Q 286 98 279 105 L 264 101 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Ring finger details --> <ellipse cx="274" cy="75" rx="8" ry="13" fill="url(#fingerTip)" opacity="0.7" /> <path d="M 256 110 Q 254 120 252 132" stroke="url(#shadowGrad)" stroke-width="1.5" fill="none" opacity="0.2" /> <!-- Pinky - metacarpal connection --> <path d="M 260 215 Q 263 200 266 185 L 276 183 Q 281 185 282 200 L 279 215 Z" fill="url(#skinBase)" /> <!-- Pinky - proximal phalanx --> <path d="M 266 185 Q 270 168 274 152 L 284 150 Q 288 152 289 168 L 276 183 Z" fill="url(#skinBase)" /> <!-- Pinky - middle phalanx --> <path d="M 274 152 Q 278 138 282 125 L 291 123 Q 295 125 295 138 L 284 150 Z" fill="url(#skinBase)" /> <!-- Pinky - distal phalanx --> <path d="M 282 125 Q 286 113 291 102 Q 294 93 301 90 Q 308 89 313 93 Q 316 99 314 111 Q 311 121 305 127 L 291 123 Z" fill="url(#skinBase)">
+      <animate attributename="d" values="M 282 125 Q 286 113 291 102 Q 294 93 301 90 Q 308 89 313 93 Q 316 99 314 111 Q 311 121 305 127 L 291 123 Z;
+                           M 282 125 Q 287 115 293 104 Q 296 95 303 92 Q 310 91 315 95 Q 318 101 316 113 Q 313 123 307 127 L 291 123 Z;
+                           M 282 125 Q 286 113 291 102 Q 294 93 301 90 Q 308 89 313 93 Q 316 99 314 111 Q 311 121 305 127 L 291 123 Z" dur="6s" repeatcount="indefinite" />
+     </path> <!-- Pinky details --> <ellipse cx="301" cy="100" rx="7" ry="11" fill="url(#fingerTip)" opacity="0.7" /> <path d="M 284 132 Q 282 140 280 148" stroke="url(#shadowGrad)" stroke-width="1.5" fill="none" opacity="0.2" /> <!-- Knuckle creases and details --> <path d="M 188 178 Q 215 175 241 178 Q 260 180 266 185" stroke="#ffb88a" stroke-width="1.2" fill="none" opacity="0.3" /> <path d="M 180 225 Q 205 220 230 220 Q 250 220 270 225" stroke="#ffb88a" stroke-width="1.5" fill="none" opacity="0.25" /> <!-- Palm creases --> <path d="M 170 265 Q 195 255 220 258 Q 245 260 270 268" stroke="#ffb88a" stroke-width="1.8" fill="none" opacity="0.2" /> <path d="M 165 290 Q 190 282 220 283 Q 250 284 280 292" stroke="#ffb88a" stroke-width="1.5" fill="none" opacity="0.18" /> <!-- Subtle vein detail --> <path d="M 200 175 Q 215 120 224 92" stroke="#ff9966" stroke-width="0.8" fill="none" opacity="0.1" /> <path d="M 228 172 Q 236 130 244 95" stroke="#ff9966" stroke-width="0.8" fill="none" opacity="0.1" />
+    </svg>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fff5e6",
+      hand_primary: "#ff9966",
+      hand_secondary: "#ffd4ad",
+      glow_color: "#ffe8d1",
+      highlight_color: "#fffbf5",
+      font_family: "SF Pro Display",
+      font_size: 16
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${adjustBrightness(config.background_color || defaultConfig.background_color, -8)} 100%)`;
+    }
+
+    function adjustBrightness(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.hand_primary || defaultConfig.hand_primary,
+            set: (value) => {
+              config.hand_primary = value;
+              window.elementSdk.setConfig({ hand_primary: value });
+            }
+          },
+          {
+            get: () => config.hand_secondary || defaultConfig.hand_secondary,
+            set: (value) => {
+              config.hand_secondary = value;
+              window.elementSdk.setConfig({ hand_secondary: value });
+            }
+          },
+          {
+            get: () => config.glow_color || defaultConfig.glow_color,
+            set: (value) => {
+              config.glow_color = value;
+              window.elementSdk.setConfig({ glow_color: value });
+            }
+          },
+          {
+            get: () => config.highlight_color || defaultConfig.highlight_color,
+            set: (value) => {
+              config.highlight_color = value;
+              window.elementSdk.setConfig({ highlight_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a27f433a686e0d3',t:'MTc2MzgwOTU0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

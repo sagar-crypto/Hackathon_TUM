@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaching Hand</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hand {
+      position: relative;
+      animation: float 4s ease-in-out infinite, glow 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 40px rgba(255, 200, 150, 0.6));
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) translateX(0) rotate(-5deg);
+      }
+      50% {
+        transform: translateY(-20px) translateX(10px) rotate(-3deg);
+      }
+    }
+
+    @keyframes glow {
+      0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(255, 200, 150, 0.6));
+      }
+      50% {
+        filter: drop-shadow(0 0 70px rgba(255, 180, 120, 0.9));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hand svg {
+        width: 300px;
+        height: 300px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="hand">
+    <svg width="400" height="400" viewbox="0 0 400 400" xmlns="http://www.w3.org/2000/svg"><defs>
+      <lineargradient id="handGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#ffe4a8;stop-opacity:1" />
+       <stop offset="40%" style="stop-color:#ffb366;stop-opacity:1" />
+       <stop offset="70%" style="stop-color:#ff8c42;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+      </lineargradient>
+      <lineargradient id="palmGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+       <stop offset="0%" style="stop-color:#fff5e6;stop-opacity:1" />
+       <stop offset="50%" style="stop-color:#ffd9a8;stop-opacity:1" />
+       <stop offset="100%" style="stop-color:#ffb366;stop-opacity:1" />
+      </lineargradient>
+      <radialgradient id="glowGradient" cx="50%" cy="50%" r="50%">
+       <stop offset="0%" style="stop-color:#fff9e6;stop-opacity:0.8" />
+       <stop offset="50%" style="stop-color:#ffe4a8;stop-opacity:0.4" />
+       <stop offset="100%" style="stop-color:#ff8c42;stop-opacity:0" />
+      </radialgradient>
+     </defs> <!-- Glow background --> <circle cx="200" cy="200" r="150" fill="url(#glowGradient)" opacity="0.6">
+      <animate attributename="r" values="140;160;140" dur="3s" repeatcount="indefinite" />
+      <animate attributename="opacity" values="0.5;0.7;0.5" dur="3s" repeatcount="indefinite" />
+     </circle> <!-- Wrist/Base --> <path d="M 150 310 Q 200 320 250 310 L 255 270 Q 200 280 145 270 Z" fill="url(#handGradient)" opacity="0.85" /> <!-- Palm base --> <path d="M 145 270 Q 135 250 140 230 Q 145 210 160 200 L 240 200 Q 255 210 260 230 Q 265 250 255 270 Z" fill="url(#palmGradient)" opacity="0.95" /> <!-- Thumb - lower joint --> <path d="M 145 245 Q 130 240 120 230 Q 110 220 108 205 L 118 190 Q 128 185 138 190 L 155 210 Z" fill="url(#handGradient)" opacity="0.9" /> <!-- Thumb - upper joint --> <path d="M 118 190 Q 110 180 108 165 Q 107 150 115 140 L 128 135 Q 138 138 143 148 Q 145 160 140 175 L 130 188 Z" fill="url(#handGradient)" opacity="0.92">
+      <animate attributename="d" values="M 118 190 Q 110 180 108 165 Q 107 150 115 140 L 128 135 Q 138 138 143 148 Q 145 160 140 175 L 130 188 Z;
+                           M 118 190 Q 112 182 110 167 Q 109 152 117 142 L 130 137 Q 140 140 145 150 Q 147 162 142 177 L 132 188 Z;
+                           M 118 190 Q 110 180 108 165 Q 107 150 115 140 L 128 135 Q 138 138 143 148 Q 145 160 140 175 L 130 188 Z" dur="4s" repeatcount="indefinite" />
+     </path> <!-- Index finger - base --> <path d="M 175 200 Q 170 185 172 165 L 185 163 Q 190 165 192 180 L 190 200 Z" fill="url(#handGradient)" opacity="0.93" /> <!-- Index finger - middle --> <path d="M 172 165 Q 170 145 175 125 L 188 123 Q 193 125 194 145 L 185 163 Z" fill="url(#handGradient)" opacity="0.95" /> <!-- Index finger - tip --> <path d="M 175 125 Q 177 105 182 88 Q 185 75 195 72 Q 205 71 210 78 Q 213 88 210 105 Q 207 120 200 128 L 188 123 Z" fill="url(#handGradient)" opacity="0.96">
+      <animate attributename="d" values="M 175 125 Q 177 105 182 88 Q 185 75 195 72 Q 205 71 210 78 Q 213 88 210 105 Q 207 120 200 128 L 188 123 Z;
+                           M 175 125 Q 178 107 184 90 Q 187 77 197 74 Q 207 73 212 80 Q 215 90 212 107 Q 209 122 202 128 L 188 123 Z;
+                           M 175 125 Q 177 105 182 88 Q 185 75 195 72 Q 205 71 210 78 Q 213 88 210 105 Q 207 120 200 128 L 188 123 Z" dur="4s" repeatcount="indefinite" />
+     </path> <!-- Middle finger - base --> <path d="M 195 200 Q 193 180 195 160 L 210 158 Q 215 160 216 180 L 213 200 Z" fill="url(#handGradient)" opacity="0.93" /> <!-- Middle finger - middle --> <path d="M 195 160 Q 195 135 200 110 L 213 108 Q 218 110 218 135 L 210 158 Z" fill="url(#handGradient)" opacity="0.95" /> <!-- Middle finger - tip --> <path d="M 200 110 Q 202 88 207 70 Q 210 55 220 52 Q 230 51 235 58 Q 238 68 235 88 Q 232 105 225 113 L 213 108 Z" fill="url(#handGradient)" opacity="0.96">
+      <animate attributename="d" values="M 200 110 Q 202 88 207 70 Q 210 55 220 52 Q 230 51 235 58 Q 238 68 235 88 Q 232 105 225 113 L 213 108 Z;
+                           M 200 110 Q 203 90 209 72 Q 212 57 222 54 Q 232 53 237 60 Q 240 70 237 90 Q 234 107 227 113 L 213 108 Z;
+                           M 200 110 Q 202 88 207 70 Q 210 55 220 52 Q 230 51 235 58 Q 238 68 235 88 Q 232 105 225 113 L 213 108 Z" dur="4s" repeatcount="indefinite" />
+     </path> <!-- Ring finger - base --> <path d="M 218 200 Q 218 182 220 163 L 233 161 Q 237 163 238 182 L 235 200 Z" fill="url(#handGradient)" opacity="0.92" /> <!-- Ring finger - middle --> <path d="M 220 163 Q 222 140 227 118 L 240 116 Q 244 118 244 140 L 233 161 Z" fill="url(#handGradient)" opacity="0.94" /> <!-- Ring finger - tip --> <path d="M 227 118 Q 230 98 235 82 Q 238 68 247 65 Q 257 64 262 71 Q 265 81 262 98 Q 259 113 252 120 L 240 116 Z" fill="url(#handGradient)" opacity="0.95">
+      <animate attributename="d" values="M 227 118 Q 230 98 235 82 Q 238 68 247 65 Q 257 64 262 71 Q 265 81 262 98 Q 259 113 252 120 L 240 116 Z;
+                           M 227 118 Q 231 100 237 84 Q 240 70 249 67 Q 259 66 264 73 Q 267 83 264 100 Q 261 115 254 120 L 240 116 Z;
+                           M 227 118 Q 230 98 235 82 Q 238 68 247 65 Q 257 64 262 71 Q 265 81 262 98 Q 259 113 252 120 L 240 116 Z" dur="4s" repeatcount="indefinite" />
+     </path> <!-- Pinky - base --> <path d="M 240 205 Q 242 190 245 175 L 256 173 Q 259 175 260 190 L 257 205 Z" fill="url(#handGradient)" opacity="0.88" /> <!-- Pinky - middle --> <path d="M 245 175 Q 248 158 252 140 L 263 138 Q 266 140 266 158 L 256 173 Z" fill="url(#handGradient)" opacity="0.90" /> <!-- Pinky - tip --> <path d="M 252 140 Q 255 125 260 112 Q 263 100 271 97 Q 279 96 283 102 Q 285 110 283 125 Q 280 137 274 143 L 263 138 Z" fill="url(#handGradient)" opacity="0.91">
+      <animate attributename="d" values="M 252 140 Q 255 125 260 112 Q 263 100 271 97 Q 279 96 283 102 Q 285 110 283 125 Q 280 137 274 143 L 263 138 Z;
+                           M 252 140 Q 256 127 262 114 Q 265 102 273 99 Q 281 98 285 104 Q 287 112 285 127 Q 282 139 276 143 L 263 138 Z;
+                           M 252 140 Q 255 125 260 112 Q 263 100 271 97 Q 279 96 283 102 Q 285 110 283 125 Q 280 137 274 143 L 263 138 Z" dur="4s" repeatcount="indefinite" />
+     </path> <!-- Knuckle shadows --> <ellipse cx="180" cy="165" rx="6" ry="4" fill="#ff8c42" opacity="0.15" /> <ellipse cx="203" cy="160" rx="6" ry="4" fill="#ff8c42" opacity="0.15" /> <ellipse cx="227" cy="163" rx="6" ry="4" fill="#ff8c42" opacity="0.15" /> <ellipse cx="250" cy="175" rx="5" ry="3" fill="#ff8c42" opacity="0.15" /> <!-- Fingertip highlights --> <ellipse cx="195" cy="85" rx="7" ry="12" fill="#fff9e6" opacity="0.5" /> <ellipse cx="220" cy="68" rx="7" ry="12" fill="#fff9e6" opacity="0.5" /> <ellipse cx="247" cy="78" rx="6" ry="10" fill="#fff9e6" opacity="0.45" /> <ellipse cx="271" cy="108" rx="5" ry="8" fill="#fff9e6" opacity="0.4" /> <!-- Palm highlights --> <ellipse cx="190" cy="230" rx="30" ry="40" fill="#fff9e6" opacity="0.3" /> <ellipse cx="170" cy="245" rx="20" ry="25" fill="#fff5e6" opacity="0.2" /> <!-- Thumb highlight --> <ellipse cx="125" cy="155" rx="10" ry="15" fill="#fff9e6" opacity="0.35" />
+    </svg>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#fff5e6",
+      hand_primary: "#ff6b35",
+      hand_secondary: "#ffb366",
+      glow_color: "#ffe4a8",
+      highlight_color: "#fff9e6",
+      font_family: "SF Pro Display",
+      font_size: 16
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${adjustBrightness(config.background_color || defaultConfig.background_color, -10)} 100%)`;
+    }
+
+    function adjustBrightness(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + percent));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + percent));
+      return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.hand_primary || defaultConfig.hand_primary,
+            set: (value) => {
+              config.hand_primary = value;
+              window.elementSdk.setConfig({ hand_primary: value });
+            }
+          },
+          {
+            get: () => config.hand_secondary || defaultConfig.hand_secondary,
+            set: (value) => {
+              config.hand_secondary = value;
+              window.elementSdk.setConfig({ hand_secondary: value });
+            }
+          },
+          {
+            get: () => config.glow_color || defaultConfig.glow_color,
+            set: (value) => {
+              config.glow_color = value;
+              window.elementSdk.setConfig({ glow_color: value });
+            }
+          },
+          {
+            get: () => config.highlight_color || defaultConfig.highlight_color,
+            set: (value) => {
+              config.highlight_color = value;
+              window.elementSdk.setConfig({ highlight_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a27f1cbf0081304',t:'MTc2MzgwOTQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

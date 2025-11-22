@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wellness Pyramid</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .pyramid {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 2px;
+    }
+
+    .level {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .level:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+    }
+
+    .level-content {
+      text-align: center;
+      padding: 20px;
+      color: white;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .level-1 {
+      height: 45%;
+      width: 100%;
+    }
+
+    .level-2 {
+      height: 35%;
+      width: 75%;
+    }
+
+    .level-3 {
+      height: 25%;
+      width: 50%;
+    }
+
+    .level-1 .level-number {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .level-1 .level-title {
+      font-size: 32px;
+      font-weight: 600;
+    }
+
+    .level-2 .level-number {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .level-2 .level-title {
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .level-3 .level-number {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .level-3 .level-title {
+      font-size: 24px;
+      font-weight: 600;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="pyramid">
+    <div class="level level-3" id="level-3">
+     <div class="level-content">
+      <div class="level-number">
+       Level 3
+      </div>
+      <div class="level-title" id="level-3-text">
+       Social Wellness
+      </div>
+     </div>
+    </div>
+    <div class="level level-2" id="level-2">
+     <div class="level-content">
+      <div class="level-number">
+       Level 2
+      </div>
+      <div class="level-title" id="level-2-text">
+       Mental Wellness
+      </div>
+     </div>
+    </div>
+    <div class="level level-1" id="level-1">
+     <div class="level-content">
+      <div class="level-number">
+       Level 1
+      </div>
+      <div class="level-title" id="level-1-text">
+       Physical Wellness
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#e8f4f8",
+      level_1_color: "#a8c8d8",
+      level_2_color: "#c8d8e8",
+      level_3_color: "#d8e8f0",
+      text_color: "#ffffff",
+      font_family: "Segoe UI",
+      font_size: 16,
+      level_1_text: "Physical Wellness",
+      level_2_text: "Mental Wellness",
+      level_3_text: "Social Wellness"
+    };
+
+    let config = null;
+
+    async function onConfigChange(newConfig) {
+      config = newConfig;
+      
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const baseFontStack = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+      
+      document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      
+      const level1 = document.getElementById('level-1');
+      const level2 = document.getElementById('level-2');
+      const level3 = document.getElementById('level-3');
+      
+      level1.style.backgroundColor = config.level_1_color || defaultConfig.level_1_color;
+      level2.style.backgroundColor = config.level_2_color || defaultConfig.level_2_color;
+      level3.style.backgroundColor = config.level_3_color || defaultConfig.level_3_color;
+      
+      const level1Text = document.getElementById('level-1-text');
+      const level2Text = document.getElementById('level-2-text');
+      const level3Text = document.getElementById('level-3-text');
+      
+      level1Text.textContent = config.level_1_text || defaultConfig.level_1_text;
+      level2Text.textContent = config.level_2_text || defaultConfig.level_2_text;
+      level3Text.textContent = config.level_3_text || defaultConfig.level_3_text;
+      
+      level1Text.style.color = config.text_color || defaultConfig.text_color;
+      level2Text.style.color = config.text_color || defaultConfig.text_color;
+      level3Text.style.color = config.text_color || defaultConfig.text_color;
+      
+      level1Text.style.fontSize = `${baseSize * 2}px`;
+      level2Text.style.fontSize = `${baseSize * 1.75}px`;
+      level3Text.style.fontSize = `${baseSize * 1.5}px`;
+      
+      const levelNumbers = document.querySelectorAll('.level-number');
+      levelNumbers.forEach(num => {
+        num.style.color = config.text_color || defaultConfig.text_color;
+        num.style.fontSize = `${baseSize * 0.75}px`;
+      });
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.level_1_color || defaultConfig.level_1_color,
+            set: (value) => {
+              config.level_1_color = value;
+              window.elementSdk.setConfig({ level_1_color: value });
+            }
+          },
+          {
+            get: () => config.level_2_color || defaultConfig.level_2_color,
+            set: (value) => {
+              config.level_2_color = value;
+              window.elementSdk.setConfig({ level_2_color: value });
+            }
+          },
+          {
+            get: () => config.level_3_color || defaultConfig.level_3_color,
+            set: (value) => {
+              config.level_3_color = value;
+              window.elementSdk.setConfig({ level_3_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["level_1_text", config.level_1_text || defaultConfig.level_1_text],
+        ["level_2_text", config.level_2_text || defaultConfig.level_2_text],
+        ["level_3_text", config.level_3_text || defaultConfig.level_3_text]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a27b2bcf63f1304',t:'MTc2MzgwNjg2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

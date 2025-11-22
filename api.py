@@ -12,7 +12,7 @@ from db_client import fetch_social_events_by_name, DatabaseError
 
 # Import the necessary components
 from welness_agent import UserContext, HealthSnapshot
-from wellness_orchestrator import run_orchestration
+from wellness_orchestrator_live import run_orchestration
 
 # Global dictionary to track session states
 active_sessions = {}
@@ -114,7 +114,7 @@ async def run_full_workflow(req: StartSessionRequest, session_id: str):
         print(f"\n🔄 Processing request for user: {req.name} (Session: {session_id})")
 
         # 2. Run the orchestration with callback
-        from wellness_orchestrator import run_orchestration_with_callback
+        from wellness_orchestrator_live import run_orchestration_with_callback
         await run_orchestration_with_callback(user_ctx, on_session_end)
 
         print(f"✓ Workflow completed for {req.name}\n")

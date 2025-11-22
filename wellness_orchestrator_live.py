@@ -93,28 +93,18 @@ async def run_orchestration_with_live_agents(user_context: UserContext, on_sessi
     try:
         # 2. Run initial LangGraph analysis
         print("📊 Running initial parallel agent analysis...")
-        print(f"{'─' * 60}")
-        print("⚡ Executing specialized agents in parallel:")
-        print("   🎭 Sentiment Agent: Analyzing initial mood...")
-        print("   👥 Social Agent: Finding personalized suggestions...")
-        print("   💪 Health Agent: Evaluating wellness metrics...")
-        print(f"{'─' * 60}\n")
-
         final_state = await app.ainvoke(initial_state, config={"recursion_limit": 10})
 
         print("\n✓ Initial LangGraph orchestration complete!")
-        print(f"\n{'═' * 60}")
+        print(f"\n{'=' * 60}")
         print("📋 Initial Agent Results Summary:")
-        print(f"{'═' * 60}")
-        print(f"🎭 Sentiment Agent:")
-        print(f"   • Mood Score: {final_state.get('mood_score', 'N/A')}/10")
-        print(f"   • Analysis: {final_state.get('mood_analysis', 'N/A')[:100]}...")
-        print(f"\n👥 Social Agent:")
-        print(f"   • Suggestion: {final_state.get('social_suggestion', 'N/A')[:100]}...")
-        print(f"\n💪 Health Agent:")
-        print(f"   • Health Score: {final_state.get('health_score', 'N/A')}/100")
-        print(f"   • Suggestion: {final_state.get('health_suggestion', 'N/A')[:100]}...")
-        print(f"{'═' * 60}\n")
+        print(f"{'=' * 60}")
+        print(f"Mood Score: {final_state.get('mood_score', 'N/A')}/10")
+        print(f"Mood Analysis: {final_state.get('mood_analysis', 'N/A')[:80]}...")
+        print(f"Health Score: {final_state.get('health_score', 'N/A')}/100")
+        print(f"Health Suggestion: {final_state.get('health_suggestion', 'N/A')[:80]}...")
+        print(f"Social Suggestion: {final_state.get('social_suggestion', 'N/A')[:80]}...")
+        print(f"{'=' * 60}\n")
 
     except Exception as e:
         print(f"\n❌ ERROR: Initial LangGraph orchestration failed: {e}")
@@ -131,22 +121,15 @@ async def run_orchestration_with_live_agents(user_context: UserContext, on_sessi
     print("✓ Initial context prompt generated successfully!\n")
 
     # 4. Start the LIVE voice session with continuous agent monitoring
-    print(f"{'═' * 60}")
+    print(f"{'=' * 60}")
     print("🎙️  Starting LIVE Voice Session with Real-Time Agent Analysis")
-    print(f"{'═' * 60}")
-    print("\n📡 Live Agent System Features:")
-    print("   ✓ Monitor conversation transcripts in real-time")
-    print("   ✓ Analyze sentiment continuously")
-    print("   ✓ Provide dynamic social suggestions")
-    print("   ✓ Track mood trends throughout conversation")
-    print("   ✓ Inject contextual insights every 45 seconds")
-    print("   ✓ Calculate urgency levels automatically")
-    print(f"\n{'═' * 60}")
-    print("⏰ Analysis Triggers:")
-    print("   • Immediate: When user speaks (>5 words)")
-    print("   • Periodic: Every 30 seconds")
-    print("   • Context Injection: Every 45 seconds")
-    print(f"{'═' * 60}\n")
+    print(f"{'=' * 60}\n")
+    print("📡 Live agents will:")
+    print("   • Monitor conversation transcripts in real-time")
+    print("   • Analyze sentiment continuously")
+    print("   • Provide dynamic social suggestions")
+    print("   • Inject contextual insights every 45 seconds")
+    print(f"{'=' * 60}\n")
 
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -163,23 +146,18 @@ async def run_orchestration_with_live_agents(user_context: UserContext, on_sessi
     wellness_agent = WellnessAgentLive(api_key=api_key)
 
     try:
-        print("🎬 Initiating voice session...\n")
         await wellness_agent.start_voice_session_with_live_agents(
             user_context=user_context,
             initial_history=full_initial_history,
             on_session_end=on_session_end
         )
     except Exception as e:
-        print(f"\n{'═' * 60}")
-        print(f"❌ ERROR: Voice session failed")
-        print(f"{'═' * 60}")
-        print(f"Error details: {e}")
+        print(f"\n❌ ERROR: Voice session failed: {e}")
         traceback.print_exc()
-        print(f"{'═' * 60}\n")
     finally:
-        print(f"\n{'═' * 60}")
-        print("👋 Session ended. Thank you for using Wellness Agent!")
-        print(f"{'═' * 60}\n")
+        print(f"\n{'=' * 60}")
+        print("👋 Session ended. Thank you!")
+        print(f"{'=' * 60}\n")
 
 
 # Alias for backward compatibility

@@ -406,4 +406,3 @@ Start your final response with the actual conversational text the Wellness Agent
 
     return {"final_context_prompt": prompt}
 
-# Example Start (if low sleep): "Hello {user_name}, welcome back. I see you got about {sleep} hours of sleep last night, that's a bit less than ideal. How are you feeling overall today? Anything specific weighing on your mind?"

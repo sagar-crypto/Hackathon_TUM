@@ -13,7 +13,7 @@ from db_client import fetch_social_events_by_name, DatabaseError
 from datetime import datetime
 
 # Import the necessary components
-from welness_agent_live import UserContext, HealthSnapshot
+from welness_agent_live import UserContext, HealthSnapshot, WellnessAgentLive
 from wellness_orchestrator_live import run_orchestration_with_callback
 
 # Global dictionary to track session states
@@ -61,6 +61,19 @@ class SessionEndResponse(BaseModel):
 
 class SocialEventQuery(BaseModel):
     event_name: str
+
+
+class ChatUserContextIn(BaseModel):
+    name: str
+    mood: Optional[str] = None
+    health: Optional[HealthSnapshotIn] = None
+    conversation_summary: Optional[str] = None
+    goals: Optional[str] = None
+
+
+class WellnessChatRequest(BaseModel):
+    message: str
+    context: Optional[ChatUserContextIn] = None
 
 
 # ---- FastAPI app with CORS ----
@@ -259,6 +272,37 @@ async def start_session(
         user_name=req.name,
         session_id=session_id
     )
+
+@app.post("/wellness-chat")
+async def wellness_chat(req: WellnessChatRequest):
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    agent_live = WellnessAgentLive(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+    if agent_live is None:
+        raise HTTPException(status_code=500, detail="Wellness agent not initialized")
+
+    user_ctx: Optional[UserContext] = None
+    if req.context is not None:
+        health_ctx = None
+        if req.context.health is not None:
+            health_ctx = HealthSnapshot(
+                steps_today=req.context.health.steps_today,
+                sleep_hours_last_night=req.context.health.sleep_hours_last_night,
+            )
+
+        user_ctx = UserContext(
+            name=req.context.name,
+            mood=req.context.mood,
+            health=health_ctx,
+            conversation_summary=req.context.conversation_summary,
+            goals=req.context.goals,
+        )
+
+    reply = await agent_live.chat(
+        user_message=req.message,
+        user_context=user_ctx,
+    )
+
+    return {"reply": reply}
 
 
 @app.get("/session/{session_id}/status")

@@ -156,6 +156,38 @@ async def audio_output_loop(session, audio_handler, state):
         while not state.should_end_session:
             try:
                 async for response in session.receive():
+                    # Check for tool calls first
+                    if hasattr(response, 'tool_call') and response.tool_call:
+                        tool_call = response.tool_call
+                        print(f"\n🔧 Tool call detected: {tool_call}")
+
+                        # Check if it's the end_session_tool
+                        if hasattr(tool_call, 'function_calls') and tool_call.function_calls:
+                            for fc in tool_call.function_calls:
+                                function_name = getattr(fc, 'name', None)
+                                function_id = getattr(fc, 'id', None)
+
+                                print(f"   Function name: {function_name}, ID: {function_id}")
+
+                                if function_name == 'end_session_tool':
+                                    print("\n👋 End session tool called")
+                                    state.end_session_requested = True
+
+                                    # Send tool response
+                                    print("   Sending tool response...")
+                                    await session.send_tool_response(
+                                        function_responses=[
+                                            types.FunctionResponse(
+                                                id=function_id,
+                                                name=function_name,
+                                                response={"status": "session_ended"}
+                                            )
+                                        ]
+                                    )
+                                    print("   Tool response sent, waiting for AI's final message...")
+
+                                    # DON'T end here - continue to receive the final audio response
+
                     server_content = response.server_content
                     if server_content:
                         # Handle audio output and transcription
@@ -172,14 +204,6 @@ async def audio_output_loop(session, audio_handler, state):
                                 if hasattr(part, 'text') and part.text:
                                     current_text_parts.append(part.text)
 
-                                # Check for function call to end session
-                                if hasattr(part, 'function_call') and part.function_call:
-                                    func_call = part.function_call
-                                    if hasattr(func_call, 'name') and func_call.name == 'end_session_tool':
-                                        state.end_session_requested = True
-                                    elif hasattr(func_call, 'id') and 'end_session' in str(func_call):
-                                        state.end_session_requested = True
-
                             # Store agent's text and send to coordinator
                             if current_text_parts:
                                 state.last_agent_text = " ".join(current_text_parts)
@@ -193,30 +217,15 @@ async def audio_output_loop(session, audio_handler, state):
                             state.is_ai_speaking = False
                             print(".", end="", flush=True)
 
-                            # If end session was requested, wait for final audio and then end
+                            # If we're in the process of ending, now we can actually end
                             if state.end_session_requested:
-                                print(f"\n\n👋 AI assistant is ending the session")
-                                print("Waiting for final audio to complete...")
+                                print("\n\n👋 AI has finished speaking, ending session gracefully...")
+                                # Give a bit more time for audio buffer to clear
                                 await asyncio.sleep(FINAL_AUDIO_WAIT)
-                                print("Session ending gracefully...")
                                 state.should_end_session = True
                                 if state.session_ended_callback:
                                     await state.session_ended_callback("ai_initiated")
                                 return
-
-                    # Check for tool calls at response level
-                    if hasattr(response, 'tool_call') and response.tool_call:
-                        tool_call = response.tool_call
-                        tool_name = None
-                        if hasattr(tool_call, 'function_calls') and tool_call.function_calls:
-                            for fc in tool_call.function_calls:
-                                if hasattr(fc, 'name'):
-                                    tool_name = fc.name
-                                elif hasattr(fc, 'id') and 'end_session' in str(fc):
-                                    tool_name = 'end_session_tool'
-
-                        if tool_name == 'end_session_tool':
-                            state.end_session_requested = True
 
             except asyncio.CancelledError:
                 print("\n[Output Loop] Cancelled")
@@ -230,17 +239,11 @@ async def audio_output_loop(session, audio_handler, state):
                     except Exception:
                         pass
                 break
-            except AttributeError as e:
-                print(f"\n[Output Loop] Debug - AttributeError: {e}")
-                if hasattr(response, 'tool_call'):
-                    print(f"Tool call structure: {response.tool_call}")
-                    print(f"Tool call type: {type(response.tool_call)}")
-                    print(f"Tool call attributes: {dir(response.tool_call)}")
-                continue
             except Exception as e:
                 print(f"[Output Loop] Error: {e}")
                 traceback.print_exc()
-                break
+                continue
+
     finally:
         print("[Output Loop] Exiting...")
 

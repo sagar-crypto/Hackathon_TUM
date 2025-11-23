@@ -1,2 +1,59 @@
 .env
 *.db
+
+
+########################################
+# Frontend (Kotlin Multiplatform) code #
+########################################
+
+# Gradle / build artifacts
+/Frontend/.gradle/
+/Frontend/build/
+/Frontend/**/build/
+/Frontend/**/.gradle/
+
+# Android/Native build stuff
+/Frontend/.cxx/
+/Frontend/.externalNativeBuild/
+/Frontend/captures/
+
+# IntelliJ / Android Studio project files
+/Frontend/.idea/
+/Frontend/**/.idea/
+/Frontend/*.iml
+/Frontend/**/*.iml
+/Frontend/*.ipr
+/Frontend/*.iws
+
+# Kotlin/Native
+/Frontend/.konan/
+/Frontend/**/kotlin-native/
+
+# Local config & secrets
+/Frontend/local.properties
+/Frontend/*.keystore
+/Frontend/*.jks
+/Frontend/*.pem
+/Frontend/.env
+/Frontend/.env.*
+/Frontend/*.secrets.json
+
+# iOS / Xcode (if you have iOS target)
+/Frontend/**/xcuserdata/
+/Frontend/**/DerivedData/
+/Frontend/**/Pods/
+/Frontend/**/.build/
+/Frontend/**/.xcworkspace
+
+# Logs & temp files
+/Frontend/**/*.log
+/Frontend/**/*.tmp
+/Frontend/**/*.temp
+/Frontend/**/*.swp
+/Frontend/**/*.swo
+
+# OS-specific junk
+/Frontend/**/.DS_Store
+/Frontend/**/Thumbs.db
+/Frontend/**/Desktop.ini
+

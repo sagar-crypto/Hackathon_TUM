@@ -77,6 +77,7 @@ class ChatUserContextIn(BaseModel):
 class WellnessChatRequest(BaseModel):
     session_id: str   # which conversation this belongs to
     message: str      # latest user message
+    context: Optional[ChatUserContextIn] = None  # dynamic per-turn context
 
 
 WELLNESS_SYSTEM_PROMPT = """
@@ -127,6 +128,36 @@ def get_user_context_for_session(session_id: str) -> UserContext:
         # health=None,
         conversation_summary=None,
         goals=None,
+    )
+
+
+def build_user_context_from_request(req: WellnessChatRequest) -> Optional[UserContext]:
+    """
+    Turn the incoming JSON 'context' into a UserContext.
+    Returns None if no context was provided.
+    """
+    if not req.context:
+        return None
+
+    c = req.context
+
+    # Build HealthSnapshot if present
+    health = None
+    if c.health is not None:
+        health = HealthSnapshot(
+            steps_today=c.health.steps_today,
+            sleep_hours_last_night=c.health.sleep_hours_last_night,
+        )
+
+    # Default name if frontend doesn't send one
+    name = c.name or "Sagar"
+
+    return UserContext(
+        name=name,
+        mood=c.mood,
+        health=health,
+        conversation_summary=c.conversation_summary,
+        goals=c.goals,
     )
 
 # ---- WebSocket Manager ----
@@ -321,8 +352,15 @@ async def wellness_chat(req: WellnessChatRequest):
     # Is this the very first user message?
     is_first_turn = len(history) == 0
 
-    # 2) Build UserContext ONLY on the first turn
-    user_ctx = get_user_context_for_session(req.session_id) if is_first_turn else None
+    # 2) Build UserContext dynamically from the request, with a fallback on first turn
+    if is_first_turn:
+        # First message in this chat: use payload context if present, else default
+        user_ctx = build_user_context_from_request(req) or get_user_context_for_session(req.session_id)
+    else:
+        # Later turns: you can decide whether to accept updated context or ignore it
+        user_ctx = build_user_context_from_request(req)
+        # If you don't want to update context after first turn, just do:
+        # user_ctx = None
 
     # 3) Append user message to history
     history.append({"role": "user", "text": req.message})
@@ -330,8 +368,8 @@ async def wellness_chat(req: WellnessChatRequest):
     # 4) Call model with previous turns as history
     reply = await agent_live.chat(
         user_message=req.message,
-        user_context=user_ctx,      # will be None after first turn
-        history=history[:-1],       # all previous turns
+        user_context=user_ctx,   # may be None
+        history=history[:-1],    # all previous turns
     )
 
     # 5) Append assistant reply
@@ -1052,4 +1090,4 @@ if __name__ == "__main__":
         print("Starting Wellness Agent API server...")
         print("API docs at: http://localhost:8000/docs")
         print("Frontend: Open wellness_frontend.html in your browser")
-        uvicorn.run(app, host="131.159.218.120", port=8000)
+        uvicorn.run(app, host="0.0.0.0", port=8000)

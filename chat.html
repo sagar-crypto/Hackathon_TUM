@@ -138,79 +138,94 @@
 </div>
 
 <script>
-  const API_URL = "http://0.0.0.0:8000/wellness-chat";
-
-  // Generate a simple session id and reuse it
-  const sessionId = "web-" + Math.random().toString(36).slice(2, 10);
-  document.getElementById("sessionIdLabel").textContent = sessionId;
-
-  const chatMessagesEl = document.getElementById("chatMessages");
-  const chatInputEl = document.getElementById("chatInput");
-  const sendBtn = document.getElementById("sendBtn");
-  const statusEl = document.getElementById("status");
-
-  sendBtn.addEventListener("click", sendMessage);
-  chatInputEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
-  });
-
-  async function sendMessage() {
-    const text = chatInputEl.value.trim();
-    if (!text) return;
-
-    sendBtn.disabled = true;
-    chatInputEl.disabled = true;
-    statusEl.textContent = "Thinking...";
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id: sessionId,
-          message: text
-        }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text().catch(() => "");
-        statusEl.textContent = `Error: ${res.status} ${errorText}`;
-        sendBtn.disabled = false;
-        chatInputEl.disabled = false;
-        return;
+    const API_URL = "http://0.0.0.0:8000/wellness-chat";
+  
+    // Generate a simple session id and reuse it
+    const sessionId = "web-" + Math.random().toString(36).slice(2, 10);
+    document.getElementById("sessionIdLabel").textContent = sessionId;
+  
+    const chatMessagesEl = document.getElementById("chatMessages");
+    const chatInputEl = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const statusEl = document.getElementById("status");
+  
+    // 🔹 For now: hard-coded context so you can see the effect
+    const staticContext = {
+        name: "Sagar",
+        mood: "very happy",
+        health: {
+            steps_today: 10000,
+            sleep_hours_last_night: 20
+        },
+        conversation_summary: "He was happy and enjoying",
+        goals: "have more fun"
+    };
+  
+    let isFirstTurn = true; // we'll only send context on the first message
+  
+    sendBtn.addEventListener("click", sendMessage);
+    chatInputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        sendMessage();
       }
+    });
+  
+    async function sendMessage() {
+        const text = chatInputEl.value.trim();
+        if (!text) return;
 
-      const data = await res.json();
-      renderMessages(data.messages || []);
-      statusEl.textContent = "Connected.";
-      chatInputEl.value = "";
-      chatInputEl.focus();
-    } catch (err) {
-      console.error(err);
-      statusEl.textContent = "Request failed: " + err;
-    } finally {
-      sendBtn.disabled = false;
-      chatInputEl.disabled = false;
+        sendBtn.disabled = true;
+        chatInputEl.disabled = true;
+        statusEl.textContent = "Thinking...";
+
+        try {
+            const body = {
+            session_id: sessionId,
+            message: text,
+            };
+
+            // ✅ Send context only on the first turn
+            if (isFirstTurn) {
+            body.context = staticContext;
+            isFirstTurn = false;
+            }
+
+            const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            });
+
+            const data = await res.json();
+            renderMessages(data.messages || []);
+            statusEl.textContent = "Connected.";
+            chatInputEl.value = "";
+            chatInputEl.focus();
+        } catch (err) {
+            console.error(err);
+            statusEl.textContent = "Request failed: " + err;
+        } finally {
+            sendBtn.disabled = false;
+            chatInputEl.disabled = false;
+        }
     }
-  }
-
-  function renderMessages(messages) {
-    chatMessagesEl.innerHTML = "";
-    for (const m of messages) {
-      const row = document.createElement("div");
-      row.className = "msg-row " + (m.role === "user" ? "user" : "assistant");
-
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = m.text;
-
-      row.appendChild(bubble);
-      chatMessagesEl.appendChild(row);
+  
+    function renderMessages(messages) {
+      chatMessagesEl.innerHTML = "";
+      for (const m of messages) {
+        const row = document.createElement("div");
+        row.className = "msg-row " + (m.role === "user" ? "user" : "assistant");
+  
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = m.text;
+  
+        row.appendChild(bubble);
+        chatMessagesEl.appendChild(row);
+      }
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
     }
-    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-  }
-</script>
+  </script>
+  
 </body>
 </html>

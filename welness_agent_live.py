@@ -87,8 +87,8 @@ def build_wellness_context(ctx: UserContext) -> str:
     if ctx.goals:
         parts.append(f"Their current wellbeing goals are: {ctx.goals}.")
     parts.append(
-        "Start by gently acknowledging anything notable (like low activity or poor sleep), "
-        "then ask how they are feeling about their day. Keep the tone warm and non-judgmental."
+        "Start by gently asking how they are feeling about their day. "
+        "Keep the tone warm, supportive, and non-judgmental."
     )
     return " ".join(parts)
 

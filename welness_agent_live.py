@@ -6,7 +6,7 @@ import traceback
 from google import genai
 from google.genai import types
 from websockets.exceptions import ConnectionClosedError
-from typing import Optional, List
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 
 from live_transcript_handler import LiveAgentCoordinator, LiveAnalysisResult
@@ -472,27 +472,45 @@ class WellnessAgentLive:
         finally:
             audio_handler.close()
 
+    from typing import Dict  # add to your imports at the top: Optional, List, Dict
+
     async def chat(
         self,
         user_message: str,
         user_context: Optional[UserContext] = None,
+        history: Optional[List[Dict[str, str]]] = None,
     ) -> str:
         """
         Text-only wellness chat using the SAME live model.
         Opens a short-lived live session with response_modalities=['TEXT'].
+
+        `history` is a list of dicts:
+          [{ "role": "user"|"assistant", "text": "..." }, ...]
         """
-        # Build config for text responses
         config = types.LiveConnectConfig(
             response_modalities=["TEXT"],
             system_instruction=WELLNESS_SYSTEM_PROMPT,
-            # We don't need tools / audio here, just a simple text reply
         )
 
         async with self.client.aio.live.connect(
             model=self.model_id,
             config=config,
         ) as session:
-            # 1) Optional dynamic context message
+            # 0) Re-send conversation history (only user turns)
+            if history:
+                for turn in history:
+                    if turn["role"] != "user":
+                        continue  # skip assistant/model turns
+
+                    await session.send_client_content(
+                        turns=types.Content(
+                            role="user",
+                            parts=[types.Part(text=turn["text"])],
+                        ),
+                        turn_complete=True,
+                    )
+
+            # 1) Optional dynamic context message (e.g. only on first turn)
             if user_context is not None:
                 context_text = build_wellness_context(user_context)
                 await session.send_client_content(
@@ -513,7 +531,7 @@ class WellnessAgentLive:
             )
 
             # 3) Collect streamed text reply
-            reply_chunks: list[str] = []
+            reply_chunks: List[str] = []
 
             async for response in session.receive():
                 server_content = response.server_content

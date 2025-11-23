@@ -6,7 +6,7 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException, WebSocket, WebSocke
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, Set
+from typing import Optional, Dict, Set, List
 import json
 from get_data import fetch_ticketmaster_events, TicketmasterError
 from db_client import fetch_social_events_by_name, DatabaseError
@@ -21,6 +21,7 @@ from wellness_orchestrator_live import run_orchestration_with_callback
 # Global dictionary to track session states
 active_sessions: Dict[str, Dict] = {}
 session_websockets: Dict[str, Set[WebSocket]] = {}
+chat_sessions: Dict[str, List[Dict[str, str]]] = {}
 
 
 # ---- Pydantic models (HTTP layer) ----
@@ -74,8 +75,9 @@ class ChatUserContextIn(BaseModel):
 
 
 class WellnessChatRequest(BaseModel):
-    message: str
-    context: Optional[ChatUserContextIn] = None
+    session_id: str   # which conversation this belongs to
+    message: str      # latest user message
+
 
 WELLNESS_SYSTEM_PROMPT = """
 You are a warm, calm, and empathetic wellness companion.
@@ -118,6 +120,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def get_user_context_for_session(session_id: str) -> UserContext:
+    return UserContext(
+        name="Sagar",
+        # mood=None,
+        # health=None,
+        conversation_summary=None,
+        goals=None,
+    )
 
 # ---- WebSocket Manager ----
 
@@ -305,29 +315,32 @@ async def wellness_chat(req: WellnessChatRequest):
     if agent_live is None:
         raise HTTPException(status_code=500, detail="Wellness agent not initialized")
 
-    user_ctx: Optional[UserContext] = None
-    if req.context is not None:
-        health_ctx = None
-        if req.context.health is not None:
-            health_ctx = HealthSnapshot(
-                steps_today=req.context.health.steps_today,
-                sleep_hours_last_night=req.context.health.sleep_hours_last_night,
-            )
+    # 1) Get or create history for this session
+    history = chat_sessions.setdefault(req.session_id, [])
 
-        user_ctx = UserContext(
-            name=req.context.name,
-            mood=req.context.mood,
-            health=health_ctx,
-            conversation_summary=req.context.conversation_summary,
-            goals=req.context.goals,
-        )
+    # Is this the very first user message?
+    is_first_turn = len(history) == 0
 
+    # 2) Build UserContext ONLY on the first turn
+    user_ctx = get_user_context_for_session(req.session_id) if is_first_turn else None
+
+    # 3) Append user message to history
+    history.append({"role": "user", "text": req.message})
+
+    # 4) Call model with previous turns as history
     reply = await agent_live.chat(
         user_message=req.message,
-        user_context=user_ctx,
+        user_context=user_ctx,      # will be None after first turn
+        history=history[:-1],       # all previous turns
     )
 
-    return {"reply": reply}
+    # 5) Append assistant reply
+    history.append({"role": "assistant", "text": reply})
+
+    return {
+        "session_id": req.session_id,
+        "messages": history,
+    }
 
 
 @app.get("/session/{session_id}/status")

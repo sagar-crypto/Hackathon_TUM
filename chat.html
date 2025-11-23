@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wellness Chat</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 480px;
+      height: 80vh;
+      background: #020617;
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1f2937;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: radial-gradient(circle at top left, #1f2937, #020617);
+    }
+    .session-id {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 12px 12px 4px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+    .msg-row {
+      margin-bottom: 8px;
+      display: flex;
+    }
+    .msg-row.user {
+      justify-content: flex-end;
+    }
+    .msg-row.assistant {
+      justify-content: flex-start;
+    }
+    .bubble {
+      max-width: 80%;
+      padding: 8px 10px;
+      border-radius: 999px;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+    .user .bubble {
+      background: #2563eb;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .assistant .bubble {
+      background: #111827;
+      color: #e5e7eb;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-input-area {
+      display: flex;
+      gap: 6px;
+      padding: 10px;
+      border-top: 1px solid #1f2937;
+      background: #020617;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+    .chat-input-area input:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+    .chat-input-area button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .chat-input-area button:disabled {
+      opacity: 0.5;
+      cursor: progress;
+    }
+    .status {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      padding: 0 10px 6px;
+      min-height: 1.1em;
+    }
+  </style>
+</head>
+<body>
+<div class="chat-container">
+  <div class="chat-header">
+    <div>Wellness Companion</div>
+    <div class="session-id" id="sessionIdLabel"></div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages"></div>
+
+  <div class="status" id="status">Say hi to start the conversation.</div>
+
+  <div class="chat-input-area">
+    <input
+      id="chatInput"
+      type="text"
+      placeholder="Type a message..."
+      autocomplete="off"
+    />
+    <button id="sendBtn">Send</button>
+  </div>
+</div>
+
+<script>
+  const API_URL = "http://0.0.0.0:8000/wellness-chat";
+
+  // Generate a simple session id and reuse it
+  const sessionId = "web-" + Math.random().toString(36).slice(2, 10);
+  document.getElementById("sessionIdLabel").textContent = sessionId;
+
+  const chatMessagesEl = document.getElementById("chatMessages");
+  const chatInputEl = document.getElementById("chatInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const statusEl = document.getElementById("status");
+
+  sendBtn.addEventListener("click", sendMessage);
+  chatInputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
+  async function sendMessage() {
+    const text = chatInputEl.value.trim();
+    if (!text) return;
+
+    sendBtn.disabled = true;
+    chatInputEl.disabled = true;
+    statusEl.textContent = "Thinking...";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          message: text
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        statusEl.textContent = `Error: ${res.status} ${errorText}`;
+        sendBtn.disabled = false;
+        chatInputEl.disabled = false;
+        return;
+      }
+
+      const data = await res.json();
+      renderMessages(data.messages || []);
+      statusEl.textContent = "Connected.";
+      chatInputEl.value = "";
+      chatInputEl.focus();
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = "Request failed: " + err;
+    } finally {
+      sendBtn.disabled = false;
+      chatInputEl.disabled = false;
+    }
+  }
+
+  function renderMessages(messages) {
+    chatMessagesEl.innerHTML = "";
+    for (const m of messages) {
+      const row = document.createElement("div");
+      row.className = "msg-row " + (m.role === "user" ? "user" : "assistant");
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = m.text;
+
+      row.appendChild(bubble);
+      chatMessagesEl.appendChild(row);
+    }
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+</script>
+</body>
+</html>

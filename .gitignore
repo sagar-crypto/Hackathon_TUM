@@ -57,3 +57,150 @@
 /Frontend/**/Thumbs.db
 /Frontend/**/Desktop.ini
 
+# ============================================
+# Kotlin/Android Project - GitIgnore
+# Add this to your existing .gitignore file
+# ============================================
+
+# ===== Gradle Files =====
+.gradle/
+build/
+!gradle-wrapper.jar
+.cxx/
+local.properties
+
+# ===== Android Studio / IntelliJ IDEA =====
+*.iml
+.idea/
+*.iws
+*.ipr
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/misc.xml
+captures/
+.externalNativeBuild
+.navigation/
+output.json
+
+# ===== Kotlin Compiled Files =====
+*.class
+*.jar
+*.war
+*.ear
+*.kotlin_module
+*.kotlinc/
+
+# ===== Android Build Outputs =====
+/*/build/
+*/build/
+build/
+out/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# ===== Android NDK =====
+obj/
+.cxx/
+
+# ===== Signing Files (IMPORTANT - Never commit these!) =====
+*.jks
+*.keystore
+keystore.properties
+release/
+signing/
+
+# ===== Local Configuration =====
+local.properties
+gradle.properties
+
+# ===== Logs =====
+*.log
+
+# ===== Testing =====
+test-results/
+*.test
+coverage/
+.coverage
+htmlcov/
+
+# ===== OS Files =====
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ===== Version Control =====
+.svn/
+.hg/
+.bzr/
+
+# ===== Backup Files =====
+*~
+*.swp
+*.bak
+*.tmp
+*.orig
+*_backup
+
+# ===== Generated Files =====
+gen/
+generated/
+proguard/
+lint/
+*.hprof
+
+# ===== Firebase =====
+google-services.json
+firebase-debug.log
+.firebase/
+
+# ===== Dependencies =====
+node_modules/
+bower_components/
+
+# ===== Environment Variables =====
+.env
+.env.local
+.env.*.local
+*.env
+
+# ===== Documentation =====
+docs/_build/
+site/
+
+# ===== Sensitive Data (Add your specific files) =====
+# API keys, tokens, credentials
+secrets.xml
+api_keys.xml
+credentials.json
+
+# ===== Jetpack Compose Preview =====
+.compose-preview/
+
+# ===== Kotlin Native =====
+konan/
+klib/
+
+# ===== Keep These (Exceptions) =====
+# If you want to keep wrapper jar
+!gradle-wrapper.jar
+# If you have specific configs to keep
+!gradle/wrapper/gradle-wrapper.properties
